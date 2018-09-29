@@ -1,0 +1,38 @@
+language: php
+
+php:
+  - 7.1
+
+env:
+  - TEST_TYPE="cover" STABILITY="--prefer-lowest --prefer-stable"
+  - TEST_TYPE="style" STABILITY=""
+
+before_install:
+  - if [ "$TEST_TYPE" = "style" ]; then phpenv config-rm xdebug.ini; fi;
+  - composer self-update
+
+before_script:
+  - |
+    run_tests() {
+      if [ "$TEST_TYPE" = "style" ]; then
+        if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+          COMMIT_RANGE=$TRAVIS_COMMIT_RANGE;
+        else
+          COMMIT_RANGE="HEAD~..HEAD";
+        fi;
+        CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRTUXB $COMMIT_RANGE);
+
+        composer style-check src $CHANGED_FILES;
+        composer style-check tests $CHANGED_FILES;
+        phpunit --no-coverage;
+      else
+        mkdir -p build/logs;
+        phpunit;
+      fi;
+    }
+  - composer update $STABILITY
+script:
+  - run_tests
+
+after_success:
+  - if [ "$TEST_TYPE" = "cover" ]; then php vendor/bin/php-coveralls; fi;

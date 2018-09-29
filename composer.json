@@ -1,0 +1,36 @@
+{
+    "name": "polymorphine/message",
+    "description": "PHP Psr-7 Http message implementation",
+    "type": "library",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": "^7.1",
+        "psr/http-message": "^1.0"
+    },
+    "require-dev": {
+        "polymorphine/cs": "@dev",
+        "phpunit/phpunit": "7.0",
+        "php-coveralls/php-coveralls": "^2.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Shudd3r",
+            "email": "q3.shudder@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Polymorphine\\Message\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Polymorphine\\Message\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "style-check": "polymorphine-cs"
+    }
+}
