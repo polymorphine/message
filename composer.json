@@ -6,6 +6,7 @@
     "prefer-stable": true,
     "require": {
         "php": "^7.1",
+        "ext-json": "*",
         "psr/http-message": "^1.0"
     },
     "require-dev": {
