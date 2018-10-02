@@ -57,18 +57,13 @@ class ServerRequestFactory
             'server'     => $this->server,
             'cookie'     => $this->cookie,
             'query'      => $this->get,
-            'parsedBody' => $this->parsedBody(),
+            'parsedBody' => $this->post,
             'files'      => $this->normalizeFiles($this->files),
             'attributes' => $attributes,
             'version'    => $this->protocolVersion()
         ];
 
         return new ServerRequest($method, $uri, $body, $headers, $params);
-    }
-
-    protected function parsedBody()
-    {
-        return $this->post;
     }
 
     private function protocolVersion(): string

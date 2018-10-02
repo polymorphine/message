@@ -97,7 +97,7 @@ class ServerRequest implements ServerRequestInterface
 
     public function getParsedBody()
     {
-        return $this->parsedBody ?? $this->resolveParsedBody();
+        return isset($this->parsedBody) ? $this->parsedBody : $this->parsedBody = $this->resolveParsedBody();
     }
 
     public function withParsedBody($data)
@@ -153,7 +153,7 @@ class ServerRequest implements ServerRequestInterface
         return true;
     }
 
-    private function resolveParsedBody()
+    protected function resolveParsedBody()
     {
         return ($this->method === 'POST' && !empty($_POST) && $this->isFormContentType()) ? $_POST : null;
     }
