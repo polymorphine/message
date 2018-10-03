@@ -13,6 +13,7 @@ namespace Polymorphine\Message\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Message\Response;
+use Polymorphine\Message\Uri;
 use Polymorphine\Message\Tests\Doubles\FakeStream;
 use Psr\Http\Message\ResponseInterface;
 use InvalidArgumentException;
@@ -125,6 +126,57 @@ class ResponseTest extends TestCase
             'false' => [false],
             'int'   => [20]
         ];
+    }
+
+    public function testNamedConstructors()
+    {
+        $this->equivalentConstructs(
+            new Response(303, new FakeStream(), ['Location' => '/foo/bar/234']),
+            Response::redirect(Uri::fromString('/foo/bar/234'))
+        );
+        $this->equivalentConstructs(
+            new Response(301, new FakeStream(), ['Location' => '/foo/bar/baz']),
+            Response::redirect('/foo/bar/baz', 301)
+        );
+        $this->equivalentConstructs(
+            new Response(404, new FakeStream()),
+            Response::notFound()
+        );
+        $this->equivalentConstructs(
+            new Response(404, new FakeStream('Not Found. Sorry.')),
+            Response::notFound(new FakeStream('Not Found. Sorry.'))
+        );
+        $this->equivalentConstructs(
+            new Response(200, new FakeStream('text'), ['Content-Type' => 'text/plain']),
+            Response::text('text')
+        );
+        $this->equivalentConstructs(
+            new Response(200, new FakeStream('html'), ['Content-Type' => 'text/html']),
+            Response::html('html')
+        );
+        $this->equivalentConstructs(
+            new Response(200, new FakeStream('xml'), ['Content-Type' => 'application/xml']),
+            Response::xml('xml')
+        );
+
+        $options = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES;
+        $this->equivalentConstructs(
+            new Response(200, new FakeStream(json_encode(['Foo' => 'bar'], $options)), ['Content-Type' => 'application/json']),
+            Response::json(['Foo' => 'bar'])
+        );
+    }
+
+    public function testRedirectWithInvalidStatusCode_ThrowsException()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        Response::redirect('/foo/bar', 200);
+    }
+
+    private function equivalentConstructs(ResponseInterface $responseA, ResponseInterface $responseB)
+    {
+        $bodyA = $responseA->getBody();
+        $this->assertSame($bodyA->getContents(), $responseB->getBody()->getContents());
+        $this->assertEquals($responseA, $responseB->withBody($bodyA));
     }
 
     private function response($status = 200, $reason = null)

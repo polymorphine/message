@@ -90,6 +90,7 @@ class FakeStream implements StreamInterface
 
     public function getContents()
     {
+        return $this->body;
     }
 
     public function getMetadata($key = null)
