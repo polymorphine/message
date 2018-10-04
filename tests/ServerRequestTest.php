@@ -118,6 +118,13 @@ class ServerRequestTest extends TestCase
         $this->assertNull($request->withParsedBody([])->getParsedBody());
     }
 
+    public function testInvalidArgumentForWithParsedBodyMethod_ThrowsException()
+    {
+        $request = $this->request();
+        $this->expectException(InvalidArgumentException::class);
+        $request->withParsedBody(400);
+    }
+
     public function testUploadedFilesInvalidStructure_ThrowsInvalidArgumentException()
     {
         $this->expectException(InvalidArgumentException::class);
@@ -126,27 +133,6 @@ class ServerRequestTest extends TestCase
             'second' => 'oops im not a file'
         ];
         $this->request(['files' => $files]);
-    }
-
-    public function testResolveUnspecifiedParsedBodyIntoSuperglobalPOST()
-    {
-        $_POST = ['test' => 'value'];
-
-        $fail    = 'POST x-www-form-urlencoded should resolve into $_POST superglobal';
-        $request = $this->request([], 'POST', ['Content-Type' => 'application/x-www-form-urlencoded']);
-        $this->assertSame($_POST, $request->getParsedBody(), $fail);
-
-        $fail    = 'POST multipart/form-data should resolve into $_POST superglobal';
-        $request = $this->request([], 'POST', ['Content-Type' => 'multipart/form-data; boundary=...etc']);
-        $this->assertSame($_POST, $request->getParsedBody(), $fail);
-
-        $fail    = 'POST method with non-form data type should remain empty';
-        $request = $this->request([], 'POST', ['Content-Type' => 'other-data-type']);
-        $this->assertNull($request->getParsedBody(), $fail);
-
-        $fail    = 'GET method is not assumed form content type - should remain empty';
-        $request = $this->request([], 'GET', ['Content-Type' => 'multipart/form-data; boundary=...etc']);
-        $this->assertNull($request->getParsedBody(), $fail);
     }
 
     public function testUploadedFileNestedStructureIsValid()

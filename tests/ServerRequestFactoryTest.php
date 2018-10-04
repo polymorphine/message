@@ -227,6 +227,4 @@ class ServerRequestFactoryTest extends TestCase
             'PHP_SELF'             => '/index.php'
         ];
     }
-
-    //TODO: parsed body use cases
 }

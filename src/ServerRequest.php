@@ -97,13 +97,17 @@ class ServerRequest implements ServerRequestInterface
 
     public function getParsedBody()
     {
-        return isset($this->parsedBody) ? $this->parsedBody : $this->parsedBody = $this->resolveParsedBody();
+        return $this->parsedBody;
     }
 
     public function withParsedBody($data)
     {
+        if (!is_null($data) && !is_array($data) && !is_object($data)) {
+            throw new InvalidArgumentException('Parsed body can be either array/object data structure or null');
+        }
+
         $clone = clone $this;
-        $clone->parsedBody = empty($data) ? null : $data;
+        $clone->parsedBody = $data ?: null;
 
         return $clone;
     }
@@ -151,18 +155,5 @@ class ServerRequest implements ServerRequestInterface
         }
 
         return true;
-    }
-
-    protected function resolveParsedBody()
-    {
-        return ($this->method === 'POST' && !empty($_POST) && $this->isFormContentType()) ? $_POST : null;
-    }
-
-    private function isFormContentType()
-    {
-        $content = $this->getHeaderLine('Content-Type');
-
-        $urlEncoded = strpos($content, 'application/x-www-form-urlencoded') === 0;
-        return $urlEncoded || strpos($content, 'multipart/form-data') === 0;
     }
 }
