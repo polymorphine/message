@@ -63,8 +63,9 @@ class StreamTest extends TestCase
 
     public function testNonStreamResourceConstructorArgument_ThrowsException()
     {
+        self::$overrideFunctions = true;
         $this->expectException(InvalidArgumentException::class);
-        new Stream(imagecreate(100, 100)); //TODO: Replace with stream_context_create()
+        $this->stream();
     }
 
     /**
