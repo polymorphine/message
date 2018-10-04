@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Message\Request;
+namespace Polymorphine\Message;
 
 use Polymorphine\Message\Tests\UploadedFileTest as TestConfig;
 

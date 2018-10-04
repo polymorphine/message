@@ -12,7 +12,7 @@
 namespace Polymorphine\Message\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Message\Request\UploadedFile;
+use Polymorphine\Message\UploadedFile;
 use Psr\Http\Message\StreamInterface;
 use InvalidArgumentException;
 use RuntimeException;

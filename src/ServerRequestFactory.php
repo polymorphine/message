@@ -158,7 +158,7 @@ class ServerRequestFactory
 
     private function createUploadedFile(array $file)
     {
-        return is_array($file['tmp_name']) ? $this->transposeFileDataSet($file) : new Request\UploadedFile($file);
+        return is_array($file['tmp_name']) ? $this->transposeFileDataSet($file) : new UploadedFile($file);
     }
 
     private function transposeFileDataSet(array $files)
@@ -170,7 +170,7 @@ class ServerRequestFactory
             }
         }
 
-        $createFile = function ($file) { return new Request\UploadedFile($file); };
+        $createFile = function ($file) { return new UploadedFile($file); };
         return array_map($createFile, $normalizedFiles);
     }
 }

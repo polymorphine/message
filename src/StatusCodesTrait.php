@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Message\Response;
+namespace Polymorphine\Message;
 
 
 trait StatusCodesTrait

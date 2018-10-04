@@ -20,7 +20,7 @@ use InvalidArgumentException;
 
 class ServerRequest implements ServerRequestInterface
 {
-    use Request\RequestMethodsTrait;
+    use RequestMethodsTrait;
 
     private $server;
     private $cookie;
