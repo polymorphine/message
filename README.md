@@ -8,3 +8,30 @@
 ### Installation with [Composer](https://getcomposer.org/)
     php composer.phar require polymorphine/message
 
+### Basic usage
+
+##### ServerRequest instance
+The straight forward way is to instantiate [`ServerRequest`](src/ServerRequest.php) from
+server globals using [`ServerRequestFactory`](src/ServerRequestFactory.php):
+
+    use Polymorphine\Message\ServerRequestFactory;
+    
+    $override['get'] = ['id' => 123];
+    $request = ServerRequestFactory::fromGlobals($override);
+    
+Instead overriding server provided data you can fake it entirely by passing filled arrays to
+factory's constructor:
+
+    $factory = new ServerRequestFactory([
+        'server' => [...],
+        'get'    => [...],
+        'post'   => [...],
+        'cookie' => [...],
+        'files'  => [...]
+    ]);
+    
+    $request = $factory->create();
+
+Because complete ServerRequest contains large amount of data, other methods of instantiation
+would require much more efforts, and they'll be used mostly for testing with only necessary
+values provided - check [`ServerRequest`](src/ServerRequest.php) constructor parameters.
