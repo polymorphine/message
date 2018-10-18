@@ -11,13 +11,13 @@
 
 namespace Polymorphine\Message;
 
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\UriInterface;
 use InvalidArgumentException;
 
 
-class ServerRequestFactory
+class ServerData
 {
     private $server;
     private $get;
@@ -34,36 +34,36 @@ class ServerRequestFactory
         $this->files  = $params['files'] ?? [];
     }
 
-    public static function fromGlobals(array $override = []): ServerRequestInterface
+    public function method(): string
     {
-        $factory = new self([
-            'server' => isset($override['server']) ? $override['server'] + $_SERVER : $_SERVER,
-            'get'    => isset($override['get']) ? $override['get'] + $_GET : $_GET,
-            'post'   => isset($override['post']) ? $override['post'] + $_POST : $_POST,
-            'cookie' => isset($override['cookie']) ? $override['cookie'] + $_COOKIE : $_COOKIE,
-            'files'  => isset($override['files']) ? $override['files'] + $_FILES : $_FILES
-        ]);
-
-        return $factory->create();
+        return $this->server['REQUEST_METHOD'] ?? 'GET';
     }
 
-    public function create(array $attributes = []): ServerRequestInterface
+    public function uri(): UriInterface
     {
-        $method  = $this->server['REQUEST_METHOD'] ?? 'GET';
-        $uri     = $this->resolveUri();
-        $body    = Stream::fromResourceUri('php://input');
-        $headers = $this->resolveHeaders();
-        $params = [
+        return $this->resolveUri();
+    }
+
+    public function body(): StreamInterface
+    {
+        return Stream::fromResourceUri('php://input');
+    }
+
+    public function headers(): array
+    {
+        return $this->resolveHeaders();
+    }
+
+    public function params(): array
+    {
+        return [
             'server'     => $this->server,
             'cookie'     => $this->cookie,
             'query'      => $this->get,
             'parsedBody' => $this->post,
             'files'      => $this->normalizeFiles($this->files),
-            'attributes' => $attributes,
             'version'    => $this->protocolVersion()
         ];
-
-        return new ServerRequest($method, $uri, $body, $headers, $params);
     }
 
     private function protocolVersion(): string

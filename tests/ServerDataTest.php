@@ -12,7 +12,8 @@
 namespace Polymorphine\Message\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Message\ServerRequestFactory;
+use Polymorphine\Message\ServerData;
+use Polymorphine\Message\ServerRequest;
 use Polymorphine\Message\Tests\Doubles\FakeUploadedFile;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
@@ -21,7 +22,7 @@ use InvalidArgumentException;
 require_once __DIR__ . '/Fixtures/request-factory-functions.php';
 
 
-class ServerRequestFactoryTest extends TestCase
+class ServerDataTest extends TestCase
 {
     public static $nativeCallResult;
 
@@ -32,22 +33,19 @@ class ServerRequestFactoryTest extends TestCase
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(ServerRequestFactory::class, $this->factory());
+        $this->assertInstanceOf(ServerData::class, $this->serverData());
     }
 
     public function testBasicIntegration()
     {
         $data    = $this->basicData();
-        $factory = $this->factory($data);
-        $this->assertInstanceOf(ServerRequestFactory::class, $factory);
+        $request = ServerRequest::fromServerData($this->serverData($data));
 
-        $request = $factory->create(['attr' => 'attr value']);
         $this->assertInstanceOf(ServerRequestInterface::class, $request);
         $this->assertSame($data['server'], $request->getServerParams());
         $this->assertSame($data['get'], $request->getQueryParams());
         $this->assertSame($data['post'], $request->getParsedBody());
         $this->assertSame($data['cookie'], $request->getCookieParams());
-        $this->assertSame(['attr' => 'attr value'], $request->getAttributes());
         $this->assertSame('1.0', $request->getProtocolVersion());
     }
 
@@ -57,7 +55,7 @@ class ServerRequestFactoryTest extends TestCase
         $_GET    = ['name' => 'overwritten value'];
         $_COOKIE = ['cookie' => 'original cookie'];
         $data    = $this->basicData();
-        $request = ServerRequestFactory::fromGlobals($data);
+        $request = ServerRequest::fromGlobals($data);
 
         $this->assertInstanceOf(ServerRequestInterface::class, $request);
         $this->assertSame($data['server'] + $_SERVER, $request->getServerParams());
@@ -73,10 +71,10 @@ class ServerRequestFactoryTest extends TestCase
      * @param $serverKey
      * @param $headerName
      */
-    public function testNormalizedHeadrNamesFromServerArray($serverKey, $headerName)
+    public function testNormalizedHeaderNamesFromServerArray($serverKey, $headerName)
     {
-        $data['server'] = [$serverKey => 'value'];
-        $this->assertTrue($this->factory($data)->create()->hasHeader($headerName));
+        $data = $this->serverData(['server' => [$serverKey => 'value']]);
+        $this->assertTrue(ServerRequest::fromServerData($data)->hasHeader($headerName));
     }
 
     public function normalizeHeaderNames()
@@ -91,18 +89,18 @@ class ServerRequestFactoryTest extends TestCase
 
     public function testResolvingAuthorizationHeader()
     {
-        $this->assertFalse($this->factory()->create()->hasHeader('Authorization'));
+        $this->assertFalse(ServerRequest::fromServerData($this->serverData())->hasHeader('Authorization'));
         $data['server'] = ['HTTP_AUTHORIZATION' => 'value'];
-        $this->assertTrue($this->factory($data)->create()->hasHeader('Authorization'));
+        $this->assertTrue(ServerRequest::fromServerData($this->serverData($data))->hasHeader('Authorization'));
         self::$nativeCallResult = ['Authorization' => 'value'];
-        $this->assertTrue($this->factory()->create()->hasHeader('Authorization'));
+        $this->assertTrue(ServerRequest::fromServerData($this->serverData())->hasHeader('Authorization'));
         self::$nativeCallResult = ['authorization' => 'value'];
-        $this->assertTrue($this->factory()->create()->hasHeader('Authorization'));
+        $this->assertTrue(ServerRequest::fromServerData($this->serverData())->hasHeader('Authorization'));
         self::$nativeCallResult = ['AUTHORIZATION' => 'value'];
-        $this->assertFalse($this->factory()->create()->hasHeader('Authorization'));
+        $this->assertFalse(ServerRequest::fromServerData($this->serverData())->hasHeader('Authorization'));
     }
 
-    public function testUploadedFileSuperglobalParameterStructure()
+    public function testUploadedFileSuperGlobalParameterStructure()
     {
         $files['test'] = [
             'tmp_name' => 'phpFOOBAR',
@@ -111,7 +109,7 @@ class ServerRequestFactoryTest extends TestCase
             'type'     => 'image/jpeg',
             'error'    => 0
         ];
-        $request = $this->factory(['files' => $files])->create();
+        $request = ServerRequest::fromServerData($this->serverData(['files' => $files]));
         $this->assertInstanceOf(UploadedFileInterface::class, $request->getUploadedFiles()['test']);
     }
 
@@ -121,14 +119,14 @@ class ServerRequestFactoryTest extends TestCase
             'first'  => new FakeUploadedFile(),
             'second' => ['subcategory' => new FakeUploadedFile()]
         ];
-        $request = $this->factory(['files' => $files])->create();
+        $request = ServerRequest::fromServerData($this->serverData(['files' => $files]));
         $this->assertSame($files, $request->getUploadedFiles());
     }
 
     public function testSingleUploadedFileStructure()
     {
         $files['test'] = $this->fileData('test.txt');
-        $request = $this->factory(['files' => $files])->create();
+        $request = ServerRequest::fromServerData($this->serverData(['files' => $files]));
 
         /** @var UploadedFileInterface[] $file */
         $file = $request->getUploadedFiles();
@@ -139,7 +137,7 @@ class ServerRequestFactoryTest extends TestCase
     public function testMultipleUploadedFileStructure()
     {
         $files['test'] = $this->fileData(['testA.txt', 'testB.txt']);
-        $request = $this->factory(['files' => $files])->create();
+        $request = ServerRequest::fromServerData($this->serverData(['files' => $files]));
 
         /** @var UploadedFileInterface[][] $file */
         $file = $request->getUploadedFiles();
@@ -155,7 +153,7 @@ class ServerRequestFactoryTest extends TestCase
             'singleD'   => $this->fileData('testD.txt')
         ];
 
-        $request = $this->factory(['files' => $files])->create();
+        $request = ServerRequest::fromServerData($this->serverData(['files' => $files]));
 
         /** @var UploadedFileInterface[] $file */
         $file = $request->getUploadedFiles();
@@ -166,13 +164,14 @@ class ServerRequestFactoryTest extends TestCase
 
     public function testInvalidFileDataStructure_ThrowsException()
     {
+        $server = $this->serverData(['files' => ['field' => 'filename.txt']]);
         $this->expectException(InvalidArgumentException::class);
-        $this->factory(['files' => ['field' => 'filename.txt']])->create();
+        $server->params();
     }
 
-    private function factory(array $data = [])
+    private function serverData(array $data = [])
     {
-        return new ServerRequestFactory($data);
+        return new ServerData($data);
     }
 
     private function basicData()

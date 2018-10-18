@@ -11,7 +11,7 @@
 
 namespace Polymorphine\Message;
 
-use Polymorphine\Message\Tests\ServerRequestFactoryTest as Factory;
+use Polymorphine\Message\Tests\ServerDataTest as Factory;
 
 function apache_request_headers()
 {

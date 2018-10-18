@@ -48,7 +48,6 @@ class ServerRequestTest extends TestCase
         return [
             'cookie' => ['getCookieParams', ['key' => 'value'], 'cookie'],
             'query'  => ['getQueryParams', ['key' => 'value'], 'query'],
-            'attrib' => ['getAttributes', ['key' => 'value'], 'attributes'],
             'pBody'  => ['getParsedBody', ['key' => 'value'], 'parsedBody'],
             'files'  => ['getUploadedFiles', ['key' => new Doubles\FakeUploadedFile()], 'files']
         ];
@@ -56,9 +55,9 @@ class ServerRequestTest extends TestCase
 
     public function testGetAttribute_ReturnsSpecifiedAttributeValue()
     {
-        $request = $this->request(['attributes' => ['name' => 'value']]);
+        $request = $this->request()->withAttribute('name', 'value');
         $this->assertSame('value', $request->getAttribute('name', 'default'));
-        $request = $this->request(['attributes' => ['name' => null]]);
+        $request = $this->request()->withAttribute('name', null);
         $this->assertSame(null, $request->getAttribute('name', 'default'));
     }
 

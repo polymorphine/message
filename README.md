@@ -12,25 +12,26 @@
 
 ##### ServerRequest instance
 The straight forward way is to instantiate [`ServerRequest`](src/ServerRequest.php) from
-server globals using [`ServerRequestFactory`](src/ServerRequestFactory.php):
+server globals using `ServerRequest::fromGlobals()` named constructor:
 
-    use Polymorphine\Message\ServerRequestFactory;
+    use Polymorphine\Message\ServerRequest;
     
     $override['get'] = ['id' => 123];
-    $request = ServerRequestFactory::fromGlobals($override);
+    $request = ServerRequest::fromGlobals($override);
     
 Instead overriding server provided data you can fake it entirely by passing filled arrays to
 factory's constructor:
 
-    $factory = new ServerRequestFactory([
+    use Polymorphine\Message\ServerRequest;
+    use Polymorphine\Message\ServerData;
+    
+    $request = new ServerRequest::fromServerData(new ServerData([
         'server' => [...],
         'get'    => [...],
         'post'   => [...],
         'cookie' => [...],
         'files'  => [...]
-    ]);
-    
-    $request = $factory->create();
+    ]));
 
 Because complete ServerRequest contains large amount of data, other methods of instantiation
 would require much more efforts, and they'll be used mostly for testing with only necessary
