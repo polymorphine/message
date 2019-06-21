@@ -1,6 +1,6 @@
 {
     "name": "polymorphine/message",
-    "description": "PHP Psr-7 Http message implementation",
+    "description": "PSR-7 Http message implementation",
     "type": "library",
     "minimum-stability": "dev",
     "prefer-stable": true,
