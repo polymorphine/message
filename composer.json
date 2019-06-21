@@ -10,8 +10,8 @@
         "psr/http-message": "^1.0"
     },
     "require-dev": {
-        "polymorphine/cs": "@dev",
-        "phpunit/phpunit": "7.0",
+        "polymorphine/cs": "1.0",
+        "phpunit/phpunit": "^7.0",
         "php-coveralls/php-coveralls": "^2.0"
     },
     "license": "MIT",
