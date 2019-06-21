@@ -83,8 +83,9 @@ class Response implements ResponseInterface
      */
     public static function json(array $data, int $statusCode = 200, $encodeOptions = 0)
     {
-        $defaultEncode = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES;
-        $serialized    = json_encode($data, $defaultEncode ^ $encodeOptions);
+        $defaultEncode = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT |
+                         JSON_UNESCAPED_SLASHES | JSON_FORCE_OBJECT;
+        $serialized = json_encode($data, $defaultEncode ^ $encodeOptions);
 
         return new self($statusCode, Stream::fromBodyString($serialized), ['Content-Type' => 'application/json']);
     }

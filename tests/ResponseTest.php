@@ -159,10 +159,12 @@ class ResponseTest extends TestCase
             Response::xml('xml')
         );
 
-        $options = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES;
+        $data = ['Foo' => "single \"slash 'quote'", 'Bar' => '<tag>&ampersand</tag>"double quote"'];
+        $options = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT |
+                   JSON_UNESCAPED_SLASHES | JSON_FORCE_OBJECT;
         $this->equivalentConstructs(
-            new Response(200, new FakeStream(json_encode(['Foo' => 'bar'], $options)), ['Content-Type' => 'application/json']),
-            Response::json(['Foo' => 'bar'])
+            new Response(200, new FakeStream(json_encode($data, $options)), ['Content-Type' => 'application/json']),
+            Response::json($data)
         );
     }
 
@@ -177,6 +179,7 @@ class ResponseTest extends TestCase
         $bodyA = $responseA->getBody();
         $this->assertSame($bodyA->getContents(), $responseB->getBody()->getContents());
         $this->assertEquals($responseA, $responseB->withBody($bodyA));
+        $this->assertSame($responseA->getStatusCode(), $responseB->getStatusCode());
     }
 
     private function response($status = 200, $reason = null)
