@@ -58,7 +58,7 @@ class Uri implements UriInterface
     {
         $segments = parse_url($uri);
         if ($segments === false) {
-            throw new InvalidArgumentException("Malformed URI string: '${uri}'");
+            throw new InvalidArgumentException('Malformed URI string: `$uri`');
         }
 
         return new self($segments);

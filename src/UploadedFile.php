@@ -92,7 +92,7 @@ class UploadedFile implements UploadedFileInterface
     {
         foreach ($this->dataSpec as $key => $type) {
             if (!isset($file[$key]) || gettype($file[$key]) !== $type) {
-                throw new InvalidArgumentException(sprintf('Invalid file %s data type', $key));
+                throw new InvalidArgumentException(sprintf('Invalid data type for `%s` file', $key));
             }
         }
 
