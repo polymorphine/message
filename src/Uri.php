@@ -36,6 +36,12 @@ class Uri implements UriInterface
     private $query    = '';
     private $fragment = '';
 
+    /**
+     * @param array $segments Array of uri segment strings associated with same keys as returned from
+     *                        parse_url() function: scheme, host, port, user, pass, path, query and fragment
+     *
+     * @see https://www.php.net/manual/en/function.parse-url.php
+     */
     public function __construct(array $segments = [])
     {
         isset($segments['scheme']) and $this->scheme = $this->validScheme($segments['scheme']);

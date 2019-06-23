@@ -25,6 +25,10 @@ class ServerData
     private $cookie;
     private $files;
 
+    /**
+     * @param array $params Associative array with keys corresponding to server superglobals:
+     *                      server ($_SERVER), get ($_GET), post ($_POST), cookie ($_COOKIE), files ($_FILES)
+     */
     public function __construct(array $params = [])
     {
         $this->server = $params['server'] ?? [];

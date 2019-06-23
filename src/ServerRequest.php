@@ -29,6 +29,24 @@ class ServerRequest implements ServerRequestInterface
     private $files;
     private $attributes = [];
 
+    /**
+     * @param string          $method  Normally one of the common methods defined by RFC 7231 section 4.3
+     * @param UriInterface    $uri
+     * @param StreamInterface $body
+     * @param array           $headers Associative array of header strings or arrays of header strings
+     * @param array           $params  Associative array with following keys and its default values
+     *                                 when key is not present or its value is null:
+     *                                 - version - http protocol version (default: '1.1')
+     *                                 - target - request target (default: resolved from passed $uri param)
+     *                                 - server - $_SERVER superglobal equivalent (default: [])
+     *                                 - cookie - $_COOKIE superglobal equivalent (default: [])
+     *                                 - query - $_GET superglobal equivalent (default: [])
+     *                                 - parsedBody - $_POST superglobal equivalent (default: [])
+     *                                 - files - associative array (multidimensional) of UploadedFileInterface
+     *                                 instances (default: [])
+     *
+     * @see https://tools.ietf.org/html/rfc7231#section-4.3
+     */
     public function __construct(
         string $method,
         UriInterface $uri,

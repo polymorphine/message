@@ -26,6 +26,11 @@ class Stream implements StreamInterface
     private $writable;
     private $seekable;
 
+    /**
+     * @param resource $resource One of the stream type resources
+     *
+     * @see https://www.php.net/manual/en/resource.php
+     */
     public function __construct($resource)
     {
         if (!is_resource($resource) || get_resource_type($resource) !== 'stream') {

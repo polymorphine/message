@@ -34,6 +34,12 @@ class UploadedFile implements UploadedFileInterface
         'type'     => 'string'
     ];
 
+    /**
+     * @param array $file Associative array with keys corresponding to $_FILES[name] array
+     *                    for single uploaded file
+     *
+     * @see https://www.php.net/manual/en/features.file-upload.post-method.php
+     */
     public function __construct(array $file)
     {
         $this->checkSpec($file);
