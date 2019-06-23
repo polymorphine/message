@@ -162,7 +162,9 @@ class ServerData
 
     private function createUploadedFile(array $file)
     {
-        return is_array($file['tmp_name']) ? $this->transposeFileDataSet($file) : new UploadedFile($file);
+        return is_array($file['tmp_name'])
+            ? $this->transposeFileDataSet($file)
+            : UploadedFile::fromFileArray($file);
     }
 
     private function transposeFileDataSet(array $files)
@@ -174,7 +176,7 @@ class ServerData
             }
         }
 
-        $createFile = function ($file) { return new UploadedFile($file); };
+        $createFile = function ($file) { return UploadedFile::fromFileArray($file); };
         return array_map($createFile, $normalizedFiles);
     }
 }

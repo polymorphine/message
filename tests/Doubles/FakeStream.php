@@ -17,6 +17,7 @@ use Psr\Http\Message\StreamInterface;
 class FakeStream implements StreamInterface
 {
     public $seekable = true;
+    public $readable = true;
 
     private $body;
     private $stream;
@@ -78,7 +79,7 @@ class FakeStream implements StreamInterface
 
     public function isReadable()
     {
-        return true;
+        return $this->readable;
     }
 
     public function read($length)

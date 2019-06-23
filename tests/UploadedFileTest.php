@@ -13,6 +13,7 @@ namespace Polymorphine\Message\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Message\UploadedFile;
+use Polymorphine\Message\Tests\Doubles\FakeStream;
 use Psr\Http\Message\StreamInterface;
 use InvalidArgumentException;
 use RuntimeException;
@@ -48,27 +49,18 @@ class UploadedFileTest extends TestCase
         $this->assertSame('text/plain', $file->getClientMediaType());
     }
 
-    /**
-     * @dataProvider invalidConstructorParams
-     *
-     * @param $file array
-     */
-    public function testInvalidConstructorParam_ThrowsException(array $file)
+    public function testUnreadableFileStream_ThrowsException()
     {
+        $stream = new FakeStream();
+        $stream->readable = false;
         $this->expectException(InvalidArgumentException::class);
-        $this->file('contents', $file);
+        new UploadedFile($stream);
     }
 
-    public function invalidConstructorParams()
+    public function testInvalidErrorCode_ThrowsException()
     {
-        return [
-            'name'               => [['name' => false]],
-            'size'               => [['size' => '123']],
-            'tmp_name'           => [['tmp_name' => ['array.txt']]],
-            'type'               => [['type' => 123]],
-            'error code string'  => [['error' => 'UPLOAD_ERR_OK']],
-            'error code unknown' => [['error' => 12]]
-        ];
+        $this->expectException(InvalidArgumentException::class);
+        new UploadedFile(new FakeStream(), 0, 10);
     }
 
     public function testFileIsMoved()
@@ -143,7 +135,7 @@ class UploadedFileTest extends TestCase
 
         $_FILES['test'] = $data + $fileData;
 
-        return new UploadedFile($_FILES['test']);
+        return UploadedFile::fromFileArray($_FILES['test']);
     }
 
     private function targetPath($name = 'test.txt')

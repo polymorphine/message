@@ -103,7 +103,7 @@ class ServerDataTest extends TestCase
     public function testUploadedFileSuperGlobalParameterStructure()
     {
         $files['test'] = [
-            'tmp_name' => 'phpFOOBAR',
+            'tmp_name' => 'php://temp',
             'name'     => 'avatar.png',
             'size'     => 10240,
             'type'     => 'image/jpeg',
@@ -191,7 +191,7 @@ class ServerDataTest extends TestCase
         $fill  = function ($value) use ($name) { return array_fill(0, count($name), $value); };
 
         return [
-            'tmp_name' => $multi ? $fill('phpFOOBAR') : 'phpFOOBAR',
+            'tmp_name' => $multi ? $fill('php://temp') : 'php://temp',
             'name'     => $name,
             'size'     => $multi ? $fill(10240) : 10240,
             'type'     => $multi ? $fill('text/plain') : 'text/plain',
