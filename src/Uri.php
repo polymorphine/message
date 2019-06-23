@@ -267,7 +267,7 @@ class Uri implements UriInterface
         return $password ? ':' . $this->encode($password, self::CHARSET_HOST . ':') : '';
     }
 
-    private function encode($string, $charset, $normalize = true)
+    private function encode(string $string, $charset, $normalize = true)
     {
         $string = preg_replace('/%(?![0-9a-fA-F]{2})/', '%25', $string);
         $regexp = '/[' . $charset . ']+/u';
@@ -276,7 +276,7 @@ class Uri implements UriInterface
         return $normalize ? $this->uppercaseEncoded($string) : $string;
     }
 
-    private function uppercaseEncoded($string)
+    private function uppercaseEncoded(string $string)
     {
         $upperEncoded = function ($matches) { return strtoupper($matches[0]); };
         return preg_replace_callback('/%(?=[A-Za-z0-9]{2}).{2}/', $upperEncoded, $string);

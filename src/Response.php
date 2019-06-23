@@ -151,7 +151,7 @@ class Response implements ResponseInterface
         return $this->resolveReasonPhrase($reason);
     }
 
-    private function resolveReasonPhrase($reason = '')
+    private function resolveReasonPhrase(string $reason = '')
     {
         if (empty($reason) && isset($this->statusCodes[$this->status])) {
             $reason = $this->statusCodes[$this->status];
