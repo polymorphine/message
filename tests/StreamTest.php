@@ -74,10 +74,20 @@ class StreamTest extends TestCase
         Stream::fromResourceUri('someFile.txt', 'invalid');
     }
 
-    public function testInvalidStreamReference_ThrowsException()
+    /**
+     * @dataProvider validModes
+     *
+     * @param $mode
+     */
+    public function testInvalidStreamReference_ThrowsException($mode)
     {
         $this->expectException(RuntimeException::class);
-        Stream::fromResourceUri('someFile.txt', 'r');
+        Stream::fromResourceUri('php://someFile.txt', $mode);
+    }
+
+    public function validModes()
+    {
+        return [['w+b'], ['wb+'], ['xt+'], ['r+t'], ['cb+']];
     }
 
     /**
