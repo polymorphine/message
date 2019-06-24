@@ -70,6 +70,11 @@ class ServerData
         ];
     }
 
+    public function uploadedFiles(): array
+    {
+        return $this->normalizeFiles($this->files);
+    }
+
     private function protocolVersion(): string
     {
         return isset($this->server['SERVER_PROTOCOL'])
