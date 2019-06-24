@@ -211,12 +211,12 @@ class Stream implements StreamInterface
 
     public function getMetadata($key = null)
     {
-        if (!isset($this->metaData)) {
+        if (!isset($this->metaData) && $this->resource) {
             $this->metaData = stream_get_meta_data($this->resource);
         }
 
-        if ($key === null) { return $this->metaData; }
+        if ($key === null) { return $this->metaData ?? []; }
 
-        return isset($this->metaData[$key]) ? $this->metaData[$key] : null;
+        return $this->metaData[$key] ?? null;
     }
 }
