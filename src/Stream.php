@@ -12,9 +12,9 @@
 namespace Polymorphine\Message;
 
 use Psr\Http\Message\StreamInterface;
+use Polymorphine\Message\Exception\StreamResourceCallException;
 use InvalidArgumentException;
 use RuntimeException;
-use Polymorphine\Message\Exception\StreamResourceCallException;
 
 
 class Stream implements StreamInterface
@@ -42,8 +42,11 @@ class Stream implements StreamInterface
 
     public static function fromResourceUri(string $streamUri, $mode = 'r')
     {
-        $error = function () { throw new InvalidArgumentException('Invalid stream reference'); };
-        set_error_handler($error, E_WARNING);
+        set_error_handler(function () use ($mode) {
+            throw preg_match('/^[acrwx]\+?[tb]?$/', $mode)
+                ? new RuntimeException('Invalid stream reference')
+                : new InvalidArgumentException('Invalid stream resource mode');
+        }, E_WARNING);
         $resource = fopen($streamUri, $mode);
         restore_error_handler();
 
@@ -52,7 +55,7 @@ class Stream implements StreamInterface
 
     public static function fromBodyString(string $body)
     {
-        $stream = self::fromResourceUri('php://temp', 'w+b');
+        $stream = new self(fopen('php://temp', 'w+b'));
         $stream->write($body);
         $stream->rewind();
 

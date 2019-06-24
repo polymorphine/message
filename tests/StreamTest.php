@@ -68,6 +68,18 @@ class StreamTest extends TestCase
         $this->stream();
     }
 
+    public function testInvalidStreamMode_ThrowsException()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        Stream::fromResourceUri('someFile.txt', 'invalid');
+    }
+
+    public function testInvalidStreamReference_ThrowsException()
+    {
+        $this->expectException(RuntimeException::class);
+        Stream::fromResourceUri('someFile.txt', 'r');
+    }
+
     /**
      * @dataProvider metaKeys
      *
@@ -384,7 +396,9 @@ class StreamTest extends TestCase
     {
         $resource = $resource ?? 'php://memory';
 
-        return $this->stream = is_resource($resource) ? new Stream($resource) : Stream::fromResourceUri($resource, $mode);
+        return $this->stream = is_resource($resource)
+            ? new Stream($resource)
+            : Stream::fromResourceUri($resource, $mode);
     }
 
     private function fileStream($mode = null, string $contents = '')
