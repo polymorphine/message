@@ -19,6 +19,8 @@ use InvalidArgumentException;
 
 class ServerData
 {
+    private const FILE_ARRAY = ['name', 'type', 'tmp_name', 'error', 'size'];
+
     private $server;
     private $get;
     private $post;
@@ -162,26 +164,46 @@ class ServerData
             throw new InvalidArgumentException('Invalid file data structure');
         }
 
-        return isset($value['tmp_name']) ? $this->createUploadedFile($value) : $this->normalizeFiles($value);
+        if (isset($value['tmp_name']) && $this->isFileArray(array_keys($value))) {
+            return $this->createUploadedFile($value);
+        }
+
+        return $value;
+    }
+
+    private function isFileArray(array $keys): bool
+    {
+        return !array_diff($keys, self::FILE_ARRAY);
     }
 
     private function createUploadedFile(array $file)
     {
-        return is_array($file['tmp_name'])
-            ? $this->transposeFileDataSet($file)
-            : UploadedFile::fromFileArray($file);
-    }
-
-    private function transposeFileDataSet(array $files)
-    {
-        $normalizedFiles = [];
-        foreach ($files as $specKey => $values) {
-            foreach ($values as $idx => $value) {
-                $normalizedFiles[$idx][$specKey] = $value;
-            }
+        if (!is_array($file['tmp_name'])) {
+            return UploadedFile::fromFileArray($file);
         }
 
-        $createFile = function ($file) { return UploadedFile::fromFileArray($file); };
-        return array_map($createFile, $normalizedFiles);
+        $filesTree = [];
+        foreach (self::FILE_ARRAY as $specKey) {
+            $this->buildStructure($filesTree, $file[$specKey], $specKey, $specKey === 'size');
+        }
+
+        return $filesTree;
+    }
+
+    private function buildStructure(array &$files, array $values, string $key, bool $isLastKey)
+    {
+        foreach ($values as $name => $value) {
+            isset($files[$name]) or $files[$name] = [];
+
+            if (is_array($value)) {
+                $this->buildStructure($files[$name], $value, $key, $isLastKey);
+                continue;
+            }
+
+            $files[$name][$key] = $value;
+            if ($isLastKey) {
+                $files[$name] = UploadedFile::fromFileArray($files[$name]);
+            }
+        }
     }
 }

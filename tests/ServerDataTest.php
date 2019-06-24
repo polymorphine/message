@@ -15,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Polymorphine\Message\ServerData;
 use Polymorphine\Message\ServerRequest;
 use Polymorphine\Message\Tests\Doubles\FakeUploadedFile;
+use Polymorphine\Message\UploadedFile;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use InvalidArgumentException;
@@ -102,18 +103,31 @@ class ServerDataTest extends TestCase
 
     public function testUploadedFileSuperGlobalParameterStructure()
     {
-        $files['test'] = [
-            'tmp_name' => 'php://temp',
-            'name'     => 'avatar.png',
-            'size'     => 10240,
-            'type'     => 'image/jpeg',
-            'error'    => 0
-        ];
-        $request = ServerRequest::fromServerData($this->serverData(['files' => $files]));
+        $serverData = $this->serverData(['files' => ['test' => $this->fileData('avatar.png')]]);
+        $request    = ServerRequest::fromServerData($serverData);
         $this->assertInstanceOf(UploadedFileInterface::class, $request->getUploadedFiles()['test']);
+        $this->assertInstanceOf(UploadedFileInterface::class, $serverData->uploadedFiles()['test']);
     }
 
-    public function testUploadedFileNestedStructureParameter()
+    public function testUploadedFileFileMultipleFileSuperGlobalParameterStructure()
+    {
+        $files['single'] = $this->fileData('avatar.png');
+        $nested = [];
+        foreach ($files['single'] as $name => $value) {
+            $nested[$name] = [$value, 'nested' => $value, 'multi-nested' => [$value, 'sub-nested' => $value]];
+        }
+        $files['multi'] = $nested;
+
+        $uploadedFiles = $this->serverData(['files' => $files])->uploadedFiles();
+
+        $this->assertInstanceOf(UploadedFile::class, $uploadedFiles['single']);
+        $this->assertInstanceOf(UploadedFile::class, $uploadedFiles['multi'][0]);
+        $this->assertInstanceOf(UploadedFile::class, $uploadedFiles['multi']['nested']);
+        $this->assertInstanceOf(UploadedFile::class, $uploadedFiles['multi']['multi-nested'][0]);
+        $this->assertInstanceOf(UploadedFile::class, $uploadedFiles['multi']['multi-nested']['sub-nested']);
+    }
+
+    public function testUploadedFileInstancesInNestedStructureParameter()
     {
         $files = [
             'first'  => new FakeUploadedFile(),
@@ -148,8 +162,8 @@ class ServerDataTest extends TestCase
     public function testMixedStructureUploadedFiles()
     {
         $files = [
-            'test'      => ['multiple' => $this->fileData(['testA.txt', 'testB.txt'])],
-            'multipleC' => [new FakeUploadedFile(), new FakeUploadedFile()],
+            'test'      => $this->fileData(['testA.txt', 'testB.txt']),
+            'multipleC' => ['deep' => [new FakeUploadedFile(), new FakeUploadedFile()]],
             'singleD'   => $this->fileData('testD.txt')
         ];
 
@@ -157,8 +171,8 @@ class ServerDataTest extends TestCase
 
         /** @var UploadedFileInterface[] $file */
         $file = $request->getUploadedFiles();
-        $this->assertInstanceOf(UploadedFileInterface::class, $file['test']['multiple'][0]);
-        $this->assertInstanceOf(UploadedFileInterface::class, $file['multipleC'][1]);
+        $this->assertInstanceOf(UploadedFileInterface::class, $file['test'][0]);
+        $this->assertInstanceOf(UploadedFileInterface::class, $file['multipleC']['deep'][1]);
         $this->assertSame('testD.txt', $file['singleD']->getClientFilename());
     }
 
