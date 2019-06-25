@@ -86,6 +86,7 @@ class Stream implements StreamInterface
         $resource = $this->resource;
 
         $this->resource = null;
+        $this->metaData = null;
         $this->readable = false;
         $this->seekable = false;
         $this->writable = false;
@@ -212,12 +213,11 @@ class Stream implements StreamInterface
 
     public function getMetadata($key = null)
     {
-        if (!isset($this->metaData) && $this->resource) {
-            $this->metaData = stream_get_meta_data($this->resource);
+        if (!$this->resource) {
+            return $key ? null : [];
         }
 
-        if ($key === null) { return $this->metaData ?? []; }
-
-        return $this->metaData[$key] ?? null;
+        $this->metaData = $this->metaData ?: stream_get_meta_data($this->resource);
+        return $key ? $this->metaData[$key] ?? null : $this->metaData;
     }
 }

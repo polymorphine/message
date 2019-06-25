@@ -131,6 +131,8 @@ class StreamTest extends TestCase
         $this->assertFalse($stream->isReadable());
         $this->assertFalse($stream->isSeekable());
         $this->assertFalse($stream->isWritable());
+        $this->assertSame([], $stream->getMetadata());
+        $this->assertNull($stream->getMetadata('uri'));
     }
 
     public function testTell_ReturnsPointerPosition()
