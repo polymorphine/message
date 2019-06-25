@@ -11,14 +11,22 @@
 
 namespace Polymorphine\Message\Factory;
 
-use Polymorphine\Message\UploadedFile;
-use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
+use Polymorphine\Message\UploadedFile;
+use Polymorphine\Message\NonSAPIUploadedFile;
 use Psr\Http\Message\UploadedFileInterface;
+use Psr\Http\Message\StreamInterface;
 
 
 class UploadedFileFactory implements UploadedFileFactoryInterface
 {
+    private $serverAPI;
+
+    public function __construct(string $serverAPI = 'server')
+    {
+        $this->serverAPI = $serverAPI;
+    }
+
     public function createUploadedFile(
         StreamInterface $stream,
         int $size = null,
@@ -26,6 +34,13 @@ class UploadedFileFactory implements UploadedFileFactoryInterface
         string $clientFilename = null,
         string $clientMediaType = null
     ): UploadedFileInterface {
-        return new UploadedFile($stream, $size, $error, $clientFilename, $clientMediaType);
+        return $this->isWebServerAPI()
+            ? new UploadedFile($stream, $size, $error, $clientFilename, $clientMediaType)
+            : new NonSAPIUploadedFile($stream, $size, $error, $clientFilename, $clientMediaType);
+    }
+
+    private function isWebServerAPI(): bool
+    {
+        return $this->serverAPI && strpos($this->serverAPI, 'cli') !== 0 && strpos($this->serverAPI, 'phpdbg') !== 0;
     }
 }

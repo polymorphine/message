@@ -11,7 +11,6 @@
 
 namespace Polymorphine\Message\Tests\Factory;
 
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Message\Factory\RequestFactory;
 use Polymorphine\Message\Factory\ResponseFactory;
@@ -23,9 +22,11 @@ use Polymorphine\Message\Request;
 use Polymorphine\Message\Response;
 use Polymorphine\Message\ServerRequest;
 use Polymorphine\Message\Stream;
-use Polymorphine\Message\Tests\Doubles\FakeStream;
 use Polymorphine\Message\UploadedFile;
+use Polymorphine\Message\NonSAPIUploadedFile;
+use Polymorphine\Message\Tests\Doubles\FakeStream;
 use Polymorphine\Message\Uri;
+use InvalidArgumentException;
 use RuntimeException;
 
 
@@ -74,7 +75,16 @@ class FactoriesTest extends TestCase
     public function testUploadedFileFactory()
     {
         $factory = new UploadedFileFactory();
-        $this->assertInstanceOf(UploadedFile::class, $factory->createUploadedFile(new FakeStream()));
+        $this->assertInstanceOf(UploadedFile::class, $instance = $factory->createUploadedFile(new FakeStream()));
+        $this->assertEquals(UploadedFile::class, get_class($instance));
+
+        $factory = new UploadedFileFactory('apache2handler');
+        $this->assertInstanceOf(UploadedFile::class, $instance = $factory->createUploadedFile(new FakeStream()));
+        $this->assertEquals(UploadedFile::class, get_class($instance));
+
+        $factory = new UploadedFileFactory('cli');
+        $this->assertInstanceOf(UploadedFile::class, $instance = $factory->createUploadedFile(new FakeStream()));
+        $this->assertEquals(NonSAPIUploadedFile::class, get_class($instance));
     }
 
     public function testUnreadableFileStream_ThrowsException()
@@ -99,6 +109,4 @@ class FactoriesTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $factory->createUri('http:///example.com');
     }
-
-
 }

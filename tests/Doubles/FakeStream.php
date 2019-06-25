@@ -19,6 +19,8 @@ class FakeStream implements StreamInterface
     public $seekable = true;
     public $readable = true;
 
+    public $streamUri = 'php://temp';
+
     private $body;
     private $stream;
 
@@ -97,7 +99,7 @@ class FakeStream implements StreamInterface
 
     public function getMetadata($key = null)
     {
-        if ($key === 'uri' && $this->readable) { return 'php://temp'; }
+        if ($key === 'uri' && $this->readable) { return $this->streamUri; }
         return $key ? null : [];
     }
 }
