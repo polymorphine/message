@@ -43,6 +43,7 @@ class Stream implements StreamInterface
     public static function fromResourceUri(string $streamUri, $mode = 'r')
     {
         set_error_handler(function () use ($mode) {
+            restore_error_handler();
             throw preg_match('/^[acrwx](?:\+?[tb]?|[tb]?\+?)$/', $mode)
                 ? new RuntimeException('Invalid stream reference')
                 : new InvalidArgumentException('Invalid stream resource mode');
