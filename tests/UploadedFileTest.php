@@ -23,26 +23,24 @@ require_once __DIR__ . '/Fixtures/uploaded-file-functions.php';
 
 class UploadedFileTest extends TestCase
 {
-    public static $forceNativeFunctionErrors = false;
+    public static $errorOnMove = false;
 
-    private $testFilename;
-    private $movedFilename;
+    private $tempFile;
+    private $movedFile;
 
     public function tearDown()
     {
-        if (file_exists($this->testFilename)) { unlink($this->testFilename); }
-        if (file_exists($this->movedFilename)) {
-            unlink($this->movedFilename);
-        }
-        $this->testFilename  = null;
-        $this->movedFilename = null;
+        if (is_file($this->tempFile)) { unlink($this->tempFile); }
+        if (is_file($this->movedFile)) { unlink($this->movedFile); }
+        $this->tempFile  = null;
+        $this->movedFile = null;
 
-        self::$forceNativeFunctionErrors = false;
+        self::$errorOnMove = false;
     }
 
     public function testCreatingValidFile()
     {
-        $file = $this->file('contents', ['name' => 'test.txt']);
+        $file = $this->file(['name' => 'test.txt', 'size' => 8]);
         $this->assertSame(UPLOAD_ERR_OK, $file->getError());
         $this->assertSame('test.txt', $file->getClientFilename());
         $this->assertSame(8, $file->getSize());
@@ -65,16 +63,20 @@ class UploadedFileTest extends TestCase
 
     public function testFileIsMoved()
     {
-        $file   = $this->file('empty');
+        $file   = $this->file([], true);
+        $source = $this->tempFile;
         $target = $this->targetPath();
+
+        $this->assertTrue(file_exists($source));
         $this->assertFalse(file_exists($target));
         $file->moveTo($target);
+        $this->assertFalse(file_exists($source));
         $this->assertTrue(file_exists($target));
     }
 
     public function testMoveFileWithUploadError_ThrowsException()
     {
-        $file = $this->file('', ['error' => UPLOAD_ERR_EXTENSION]);
+        $file = $this->file(['error' => UPLOAD_ERR_EXTENSION]);
         $this->expectException(RuntimeException::class);
         $file->moveTo($this->targetPath());
     }
@@ -84,12 +86,31 @@ class UploadedFileTest extends TestCase
         $file = $this->file();
         $file->moveTo($this->targetPath());
         $this->expectException(RuntimeException::class);
-        $file->moveTo(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'file.txt');
+        $file->moveTo($this->targetPath());
+    }
+
+    public function testMoveWithInvalidTargetPath_ThrowsException()
+    {
+        $file = $this->file();
+        $this->expectException(InvalidArgumentException::class);
+        $file->moveTo(123);
+    }
+
+    public function testMoveForDetachedStream_ThrowsException()
+    {
+        $target = $this->targetPath();
+        $file   = new UploadedFile(new FakeStream());
+        $file->moveTo($target);
+
+        $file = new UploadedFile(new FakeStream());
+        $file->getStream()->close();
+        $this->expectException(RuntimeException::class);
+        $file->moveTo($target);
     }
 
     public function testFileMoveError_ThrowsException()
     {
-        self::$forceNativeFunctionErrors = true;
+        self::$errorOnMove = true;
 
         $file = $this->file();
         $this->expectException(RuntimeException::class);
@@ -102,9 +123,9 @@ class UploadedFileTest extends TestCase
         $this->assertInstanceOf(StreamInterface::class, $file->getStream());
     }
 
-    public function testGetSreamFromUploadedWithError_ThrowsException()
+    public function testGetStreamFromUploadedWithError_ThrowsException()
     {
-        $file = $this->file('', ['error' => UPLOAD_ERR_EXTENSION]);
+        $file = $this->file(['error' => UPLOAD_ERR_EXTENSION]);
         $this->expectException(RuntimeException::class);
         $file->getStream();
     }
@@ -117,29 +138,22 @@ class UploadedFileTest extends TestCase
         $file->getStream();
     }
 
-    private function file($contents = '', array $data = [])
+    private function file(array $data = [], bool $realFile = false): UploadedFile
     {
-        if (!isset($this->testFilename)) {
-            $this->testFilename = tempnam(sys_get_temp_dir(), 'test');
-        }
+        $this->tempFile = $realFile
+            ? tempnam(sys_get_temp_dir(), 'test')
+            : 'php://temp';
 
-        if ($contents) { file_put_contents($this->testFilename, $contents); }
-
-        $fileData = [
-            'tmp_name' => $this->testFilename,
-            'size'     => strlen($contents),
-            'error'    => UPLOAD_ERR_OK,
-            'name'     => 'clientName.txt',
-            'type'     => 'text/plain'
-        ];
-
-        $_FILES['test'] = $data + $fileData;
-
-        return UploadedFile::fromFileArray($_FILES['test']);
+        return UploadedFile::fromFileArray(['tmp_name' => $this->tempFile] + $data + [
+            'size'  => 10,
+            'error' => UPLOAD_ERR_OK,
+            'name'  => 'clientName.txt',
+            'type'  => 'text/plain'
+        ]);
     }
 
     private function targetPath($name = 'test.txt')
     {
-        return $this->movedFilename = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $name;
+        return $this->movedFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $name;
     }
 }

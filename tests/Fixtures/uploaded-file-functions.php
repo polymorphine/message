@@ -15,7 +15,9 @@ use Polymorphine\Message\Tests\UploadedFileTest as TestConfig;
 
 function move_uploaded_file($filename, $destination)
 {
-    if (TestConfig::$forceNativeFunctionErrors) { return false; }
+    if (TestConfig::$errorOnMove) { return false; }
 
-    return copy($filename, $destination);
+    $result = copy($filename, $destination);
+    if (is_file($filename)) { unlink($filename); }
+    return $result;
 }

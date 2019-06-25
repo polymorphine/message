@@ -35,6 +35,7 @@ class FakeStream implements StreamInterface
 
     public function close()
     {
+        $this->readable = false;
     }
 
     public function detach()
@@ -96,5 +97,7 @@ class FakeStream implements StreamInterface
 
     public function getMetadata($key = null)
     {
+        if ($key === 'uri' && $this->readable) { return 'php://temp'; }
+        return $key ? null : [];
     }
 }

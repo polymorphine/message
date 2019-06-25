@@ -19,12 +19,13 @@ use RuntimeException;
 
 class UploadedFile implements UploadedFileInterface
 {
-    private $stream;
+    protected $stream;
+    protected $isMoved = false;
+
     private $errorCode;
     private $fileSize;
     private $clientFilename;
     private $clientMediaType;
-    private $isMoved = false;
 
     public function __construct(
         StreamInterface $stream,
@@ -69,11 +70,18 @@ class UploadedFile implements UploadedFileInterface
 
     public function moveTo($targetPath)
     {
-        $this->checkFileAccess();
-        $this->isMoved = move_uploaded_file($this->stream->getMetadata('uri'), $targetPath);
-        if (!$this->isMoved) {
-            throw new RuntimeException('Failed to move uploaded file');
+        if (!is_string($targetPath) || empty($targetPath)) {
+            throw new InvalidArgumentException('Invalid target path');
         }
+
+        $this->checkFileAccess();
+        if (!$source = $this->stream->getMetadata('uri')) {
+            $this->isMoved = true;
+            throw new RuntimeException('Cannot access file stream - assume already moved');
+        }
+
+        $this->moveFile($source, $targetPath);
+        $this->isMoved = true;
     }
 
     public function getSize()
@@ -94,6 +102,14 @@ class UploadedFile implements UploadedFileInterface
     public function getClientMediaType()
     {
         return $this->clientMediaType;
+    }
+
+    protected function moveFile($source, $target): void
+    {
+        $this->stream->close();
+        if (!move_uploaded_file($source, $target)) {
+            throw new RuntimeException('Failed to move uploaded file');
+        }
     }
 
     private function checkFileAccess()
