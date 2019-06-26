@@ -1,4 +1,5 @@
 # Polymorphine/Message
+[![Latest Stable Version](https://poser.pugx.org/polymorphine/message/version)](https://packagist.org/packages/polymorphine/message)
 [![Build status](https://travis-ci.org/shudd3r/polymorphine-message.svg?branch=master)](https://travis-ci.org/shudd3r/polymorphine-message)
 [![Coverage status](https://coveralls.io/repos/github/shudd3r/polymorphine-message/badge.svg?branch=master)](https://coveralls.io/github/shudd3r/polymorphine-message?branch=master)
 [![PHP version](https://img.shields.io/packagist/php-v/polymorphine/message.svg)](https://packagist.org/packages/polymorphine/message)
