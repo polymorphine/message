@@ -19,8 +19,8 @@ their parameter formatting specific to this package.
 Not every aspect of created objects can be changed with mutation methods (like in `UriInterface`),
 that's where the need for common factory interfaces came from. Packages that want to rely on abstract
 psr/message interface, and retain control of passing immutable parameters to encapsulated objects from
-within their classes. For interoperability reasons package includes implementations of
-[PSR-17: HTTP Factories](https://www.php-fig.org/psr/psr-17/) - check this link for more details.
+within their classes will depend on [PSR-17: HTTP Factories](https://www.php-fig.org/psr/psr-17/).
+For interoperability reasons Package includes implementations of these [factories](src/Factory).
 
 #### Direct instantiation
 Constructor instantiation for each of the classes described below allows to create fully configured
