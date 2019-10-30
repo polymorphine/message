@@ -1,9 +1,9 @@
 # Polymorphine/Message
 [![Latest Stable Version](https://poser.pugx.org/polymorphine/message/version)](https://packagist.org/packages/polymorphine/message)
-[![Build status](https://travis-ci.org/shudd3r/polymorphine-message.svg?branch=master)](https://travis-ci.org/shudd3r/polymorphine-message)
-[![Coverage status](https://coveralls.io/repos/github/shudd3r/polymorphine-message/badge.svg?branch=master)](https://coveralls.io/github/shudd3r/polymorphine-message?branch=master)
+[![Build Status](https://travis-ci.org/polymorphine/message.svg?branch=master)](https://travis-ci.org/polymorphine/message)
+[![Coverage Status](https://coveralls.io/repos/github/polymorphine/message/badge.svg?branch=master)](https://coveralls.io/github/polymorphine/message?branch=master)
 [![PHP version](https://img.shields.io/packagist/php-v/polymorphine/message.svg)](https://packagist.org/packages/polymorphine/message)
-[![LICENSE](https://img.shields.io/github/license/shudd3r/polymorphine-message.svg?color=blue)](LICENSE)
+[![LICENSE](https://img.shields.io/github/license/polymorphine/message.svg?color=blue)](LICENSE)
 ### PSR-7 Http message implementation
 
 ### Installation with [Composer](https://getcomposer.org/)
