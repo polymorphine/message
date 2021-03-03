@@ -5,15 +5,13 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": "^7.1",
+        "php": "^7.4",
         "ext-json": "*",
         "psr/http-message": "^1.0",
         "psr/http-factory": "^1.0"
     },
     "require-dev": {
-        "polymorphine/cs": "1.0",
-        "phpunit/phpunit": "^7.0",
-        "php-coveralls/php-coveralls": "^2.0"
+        "polymorphine/dev": "0.1.*"
     },
     "license": "MIT",
     "authors": [
@@ -31,8 +29,5 @@
         "psr-4": {
             "Polymorphine\\Message\\Tests\\": "tests/"
         }
-    },
-    "scripts": {
-        "style-check": "polymorphine-cs"
     }
 }
