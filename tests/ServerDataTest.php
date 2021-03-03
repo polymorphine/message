@@ -27,7 +27,7 @@ class ServerDataTest extends TestCase
 {
     public static $nativeCallResult;
 
-    public function tearDown()
+    public function tearDown(): void
     {
         self::$nativeCallResult = null;
     }

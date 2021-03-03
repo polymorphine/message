@@ -37,7 +37,7 @@ class StreamTest extends TestCase
      */
     protected $testFilename;
 
-    public function tearDown()
+    public function tearDown(): void
     {
         self::$overrideFunctions = false;
         if ($this->stream) { $this->stream->close(); }

@@ -28,7 +28,7 @@ class UploadedFileTest extends TestCase
     private $tempFile;
     private $movedFile;
 
-    public function tearDown()
+    public function tearDown(): void
     {
         if (is_file($this->tempFile)) { unlink($this->tempFile); }
         if (is_file($this->movedFile)) { unlink($this->movedFile); }
