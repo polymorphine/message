@@ -18,10 +18,8 @@ use Psr\Http\Message\UploadedFileInterface;
 use InvalidArgumentException;
 
 
-class ServerRequest implements ServerRequestInterface
+class ServerRequest extends Request implements ServerRequestInterface
 {
-    use RequestMethodsTrait;
-
     private array  $server;
     private array  $cookie;
     private array  $query;
@@ -54,18 +52,12 @@ class ServerRequest implements ServerRequestInterface
         array $headers = [],
         array $params = []
     ) {
-        $this->method     = $this->validMethod($method);
-        $this->uri        = $uri;
-        $this->body       = $body;
-        $this->version    = isset($params['version']) ? $this->validProtocolVersion($params['version']) : '1.1';
-        $this->target     = isset($params['target']) ? $this->validRequestTarget($params['target']) : null;
         $this->server     = isset($params['server']) ? (array) $params['server'] : [];
         $this->cookie     = isset($params['cookie']) ? (array) $params['cookie'] : [];
         $this->query      = isset($params['query']) ? (array) $params['query'] : [];
         $this->parsedBody = empty($params['parsedBody']) ? null : $params['parsedBody'];
         $this->files      = isset($params['files']) ? $this->validUploadedFiles($params['files']) : [];
-        $this->loadHeaders($headers);
-        $this->resolveHostHeader();
+        parent::__construct($method, $uri, $body, $headers, $params);
     }
 
     public static function fromServerData(ServerData $data): self
