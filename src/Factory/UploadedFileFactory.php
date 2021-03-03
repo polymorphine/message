@@ -20,8 +20,13 @@ use Psr\Http\Message\StreamInterface;
 
 class UploadedFileFactory implements UploadedFileFactoryInterface
 {
-    private $serverAPI;
+    private string $serverAPI;
 
+    /**
+     * @see php_sapi_name()
+     *
+     * @param string $serverAPI interface type used by PHP
+     */
     public function __construct(string $serverAPI = 'server')
     {
         $this->serverAPI = $serverAPI;

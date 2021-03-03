@@ -14,7 +14,7 @@ namespace Polymorphine\Message;
 
 trait StatusCodesTrait
 {
-    private $statusCodes = [
+    private array $statusCodes = [
         // INFORMATIONAL CODES
         100 => 'Continue',
         101 => 'Switching Protocols',

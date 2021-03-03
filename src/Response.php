@@ -21,8 +21,8 @@ class Response implements ResponseInterface
     use StatusCodesTrait;
     use MessageMethodsTrait;
 
-    private $status;
-    private $reason;
+    private int    $status;
+    private string $reason;
 
     /**
      * @param int             $statusCode Normally one of the status codes defined by RFC 7231 section 6
@@ -50,35 +50,17 @@ class Response implements ResponseInterface
         $this->loadHeaders($headers);
     }
 
-    /**
-     * @param string $text
-     * @param int    $statusCode
-     *
-     * @return ResponseInterface
-     */
-    public static function text(string $text, int $statusCode = 200)
+    public static function text(string $text, int $statusCode = 200): self
     {
         return new self($statusCode, Stream::fromBodyString($text), ['Content-Type' => 'text/plain']);
     }
 
-    /**
-     * @param string $html
-     * @param int    $statusCode
-     *
-     * @return ResponseInterface
-     */
-    public static function html(string $html, int $statusCode = 200)
+    public static function html(string $html, int $statusCode = 200): self
     {
         return new self($statusCode, Stream::fromBodyString($html), ['Content-Type' => 'text/html']);
     }
 
-    /**
-     * @param string $xml
-     * @param int    $statusCode
-     *
-     * @return ResponseInterface
-     */
-    public static function xml(string $xml, int $statusCode = 200)
+    public static function xml(string $xml, int $statusCode = 200): self
     {
         return new self($statusCode, Stream::fromBodyString($xml), ['Content-Type' => 'application/xml']);
     }
@@ -92,9 +74,9 @@ class Response implements ResponseInterface
      * @param int   $statusCode
      * @param int   $encodeOptions
      *
-     * @return ResponseInterface
+     * @return self
      */
-    public static function json(array $data, int $statusCode = 200, $encodeOptions = 0)
+    public static function json(array $data, int $statusCode = 200, $encodeOptions = 0): self
     {
         $defaultEncode = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT |
                          JSON_UNESCAPED_SLASHES | JSON_FORCE_OBJECT;
@@ -103,7 +85,7 @@ class Response implements ResponseInterface
         return new self($statusCode, Stream::fromBodyString($serialized), ['Content-Type' => 'application/json']);
     }
 
-    public static function redirect($uri, int $status = 303)
+    public static function redirect($uri, int $status = 303): self
     {
         if ($status < 300 || $status > 399) {
             throw new InvalidArgumentException('Invalid status code for redirect response');
@@ -111,17 +93,17 @@ class Response implements ResponseInterface
         return new self($status, new Stream(fopen('php://temp', 'r')), ['Location' => (string) $uri]);
     }
 
-    public static function notFound(StreamInterface $body = null)
+    public static function notFound(StreamInterface $body = null): self
     {
         return new self(404, $body ?: Stream::fromResourceUri('php://temp'));
     }
 
-    public function getStatusCode()
+    public function getStatusCode(): int
     {
         return $this->status;
     }
 
-    public function withStatus($code, $reasonPhrase = '')
+    public function withStatus($code, $reasonPhrase = ''): self
     {
         $clone = clone $this;
         $clone->status = $this->validStatusCode($code);
@@ -130,12 +112,12 @@ class Response implements ResponseInterface
         return $clone;
     }
 
-    public function getReasonPhrase()
+    public function getReasonPhrase(): string
     {
         return $this->reason;
     }
 
-    private function validStatusCode($code)
+    private function validStatusCode($code): int
     {
         if (!is_int($code) || $code < 100 || $code >= 600) {
             throw new InvalidArgumentException('Invalid status code argument - integer <100-599> expected');
@@ -143,7 +125,7 @@ class Response implements ResponseInterface
         return $code;
     }
 
-    private function validReasonPhrase($reason)
+    private function validReasonPhrase($reason): string
     {
         if (!is_string($reason)) {
             throw new InvalidArgumentException('Invalid HTTP ResponseHeaders reason phrase - string expected');
@@ -151,7 +133,7 @@ class Response implements ResponseInterface
         return $this->resolveReasonPhrase($reason);
     }
 
-    private function resolveReasonPhrase(string $reason = '')
+    private function resolveReasonPhrase(string $reason = ''): string
     {
         if (empty($reason) && isset($this->statusCodes[$this->status])) {
             $reason = $this->statusCodes[$this->status];

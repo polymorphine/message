@@ -42,7 +42,7 @@ class RequestTest extends TestCase
         $this->assertNotEquals($original, $clone1);
     }
 
-    public function mutatorMethods()
+    public function mutatorMethods(): array
     {
         return [
             'withRequestTarget' => ['withRequestTarget', '*'],
@@ -136,7 +136,7 @@ class RequestTest extends TestCase
         $this->assertSame('uri-example.com', $request->withUri($uri, false)->getHeaderLine('host'), $fail);
     }
 
-    private function request($method = 'GET', array $headers = [], $uri = null, $target = null)
+    private function request($method = 'GET', array $headers = [], $uri = null, $target = null): Request
     {
         if (!isset($uri)) {
             $uri = Uri::fromString();

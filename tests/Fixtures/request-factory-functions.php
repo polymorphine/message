@@ -13,12 +13,12 @@ namespace Polymorphine\Message;
 
 use Polymorphine\Message\Tests\ServerDataTest as Factory;
 
-function apache_request_headers()
+function apache_request_headers(): array
 {
     return Factory::$nativeCallResult ?? [];
 }
 
-function function_exists($name)
+function function_exists($name): bool
 {
     return Factory::$nativeCallResult ? true : \function_exists($name);
 }

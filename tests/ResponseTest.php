@@ -86,7 +86,7 @@ class ResponseTest extends TestCase
         $this->response()->withStatus($code);
     }
 
-    public function invalidStatusCodes()
+    public function invalidStatusCodes(): array
     {
         return [
             'null'            => [null],
@@ -119,7 +119,7 @@ class ResponseTest extends TestCase
         $this->response()->withStatus(200, $reason);
     }
 
-    public function invalidReasonPhrases()
+    public function invalidReasonPhrases(): array
     {
         return [
             'array' => [['Reason in array']],
@@ -182,7 +182,7 @@ class ResponseTest extends TestCase
         $this->assertSame($responseA->getStatusCode(), $responseB->getStatusCode());
     }
 
-    private function response($status = 200, $reason = null)
+    private function response($status = 200, $reason = null): Response
     {
         return new Response($status, new FakeStream(), [], ['reason' => $reason]);
     }

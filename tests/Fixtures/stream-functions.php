@@ -33,7 +33,7 @@ function stream_get_contents($resource)
     return StreamTest::$overrideFunctions ? false : \stream_get_contents($resource);
 }
 
-function get_resource_type($resource)
+function get_resource_type($resource): string
 {
     return StreamTest::$overrideFunctions ? 'not-stream' : \get_resource_type($resource);
 }

@@ -23,10 +23,10 @@ require_once __DIR__ . '/Fixtures/uploaded-file-functions.php';
 
 class UploadedFileTest extends TestCase
 {
-    public static $errorOnMove = false;
+    public static bool $errorOnMove = false;
 
-    private $tempFile;
-    private $movedFile;
+    private ?string $tempFile  = null;
+    private ?string $movedFile = null;
 
     public function tearDown(): void
     {
@@ -152,7 +152,7 @@ class UploadedFileTest extends TestCase
         ]);
     }
 
-    private function targetPath($name = 'test.txt')
+    private function targetPath($name = 'test.txt'): string
     {
         return $this->movedFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $name;
     }

@@ -21,20 +21,20 @@ class Uri implements UriInterface
     public const CHARSET_PATH  = '^a-z0-9A-Z.\-_~&=+;,$!\'()*%:\/@';
     public const CHARSET_QUERY = '^a-z0-9A-Z.\-_~&=+;,$!\'()*%:\/@?';
 
-    protected $supportedSchemes = [
+    protected array $supportedSchemes = [
         'http'  => ['port' => 80],
         'https' => ['port' => 443]
     ];
 
-    private $uri;
+    private ?string $uri;
 
-    private $scheme   = '';
-    private $userInfo = '';
-    private $host     = '';
-    private $port;
-    private $path     = '';
-    private $query    = '';
-    private $fragment = '';
+    private string $scheme;
+    private string $userInfo;
+    private string $host;
+    private ?int   $port;
+    private string $path;
+    private string $query;
+    private string $fragment;
 
     /**
      * @param array $segments Array of uri segment strings associated with same keys as returned from
@@ -44,17 +44,17 @@ class Uri implements UriInterface
      */
     public function __construct(array $segments = [])
     {
-        isset($segments['scheme']) and $this->scheme = $this->validScheme($segments['scheme']);
-        isset($segments['user']) and $this->userInfo = $this->encode($segments['user'], self::CHARSET_HOST);
-        isset($segments['pass']) and $this->userInfo .= $this->appendPassword($segments['pass']);
-        isset($segments['host']) and $this->host = $this->normalizedHost($segments['host']);
-        isset($segments['port']) and $this->port = $this->validPortRange((int) $segments['port']);
-        isset($segments['path']) and $this->path = $this->encode($segments['path'], self::CHARSET_PATH);
-        isset($segments['query']) and $this->query = $this->encode($segments['query'], self::CHARSET_QUERY);
-        isset($segments['fragment']) and $this->fragment = $this->encode($segments['fragment'], self::CHARSET_QUERY);
+        $this->scheme   = isset($segments['scheme']) ? $this->validScheme($segments['scheme']) : '';
+        $this->userInfo = isset($segments['user']) ? $this->encode($segments['user'], self::CHARSET_HOST) : '';
+        $this->userInfo .= isset($segments['pass']) ? $this->appendPassword($segments['pass']) : '';
+        $this->host     = isset($segments['host']) ? $this->normalizedHost($segments['host']) : '';
+        $this->port     = isset($segments['port']) ? $this->validPortRange((int) $segments['port']) : null;
+        $this->path     = isset($segments['path']) ? $this->encode($segments['path'], self::CHARSET_PATH) : '';
+        $this->query    = isset($segments['query']) ? $this->encode($segments['query'], self::CHARSET_QUERY) : '';
+        $this->fragment = isset($segments['fragment']) ? $this->encode($segments['fragment'], self::CHARSET_QUERY) : '';
     }
 
-    public static function fromString(string $uri = '')
+    public static function fromString(string $uri = ''): self
     {
         $segments = parse_url($uri);
         if ($segments === false) {
@@ -66,9 +66,12 @@ class Uri implements UriInterface
 
     public function __toString(): string
     {
-        return $this->uri ?? $this->uri = $this->buildUriString();
+        return $this->uri ??= $this->buildUriString();
     }
 
+    /**
+     * Resets cached uri string.
+     */
     public function __clone()
     {
         unset($this->uri);
@@ -89,7 +92,7 @@ class Uri implements UriInterface
         return $this->host;
     }
 
-    public function getPort()
+    public function getPort(): ?int
     {
         $default = $this->port && $this->scheme && $this->supportedSchemes[$this->scheme]['port'] === $this->port;
         return ($default) ? null : $this->port;
@@ -222,20 +225,20 @@ class Uri implements UriInterface
         return $uri ?: '/';
     }
 
-    private function authorityPath()
+    private function authorityPath(): string
     {
         $authority = '//' . $this->getAuthority();
         if (!$this->path) { return $authority; }
         return ($this->path[0] === '/') ? $authority . $this->path : $authority . '/' . $this->path;
     }
 
-    private function filteredPath()
+    private function filteredPath(): string
     {
         if (!$this->path) { return ''; }
         return ($this->path[0] === '/') ? '/' . ltrim($this->path, '/') : $this->path;
     }
 
-    private function validScheme(string $scheme)
+    private function validScheme(string $scheme): string
     {
         if (!$scheme) { return ''; }
 
@@ -247,7 +250,7 @@ class Uri implements UriInterface
         return $scheme;
     }
 
-    private function validPortRange(int $port)
+    private function validPortRange(int $port): int
     {
         if ($port < 1 || $port > 65535) {
             throw new InvalidArgumentException('Invalid port range. Expected <1-65535> value');
@@ -256,18 +259,18 @@ class Uri implements UriInterface
         return $port;
     }
 
-    private function normalizedHost($host)
+    private function normalizedHost($host): string
     {
         $host = $this->encode($host, self::CHARSET_HOST, false);
         return $this->uppercaseEncoded(strtolower($host));
     }
 
-    private function appendPassword(?string $password)
+    private function appendPassword(?string $password): string
     {
         return $password ? ':' . $this->encode($password, self::CHARSET_HOST . ':') : '';
     }
 
-    private function encode(string $string, $charset, $normalize = true)
+    private function encode(string $string, $charset, $normalize = true): string
     {
         $string = preg_replace('/%(?![0-9a-fA-F]{2})/', '%25', $string);
         $regexp = '/[' . $charset . ']+/u';

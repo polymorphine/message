@@ -17,20 +17,26 @@ use InvalidArgumentException;
 
 trait MessageMethodsTrait
 {
-    private $body;
-    private $version;
-    private $headers;
+    private StreamInterface $body;
+    private string          $version;
+    private array           $headers;
 
-    private $supportedProtocolVersions = ['1.0', '1.1', '2'];
+    private array $supportedProtocolVersions = ['1.0', '1.1', '2'];
 
-    private $headerNames = [];
+    private array $headerNames = [];
 
-    public function getProtocolVersion()
+    /**
+     * {@inheritDoc}
+     */
+    public function getProtocolVersion(): string
     {
         return $this->version;
     }
 
-    public function withProtocolVersion($version)
+    /**
+     * {@inheritDoc}
+     */
+    public function withProtocolVersion($version): self
     {
         $clone = clone $this;
         $clone->version = $this->validProtocolVersion($version);
@@ -38,17 +44,26 @@ trait MessageMethodsTrait
         return $clone;
     }
 
-    public function getHeaders()
+    /**
+     * {@inheritDoc}
+     */
+    public function getHeaders(): array
     {
-        return $this->headers ?: [];
+        return $this->headers ?? [];
     }
 
-    public function hasHeader($name)
+    /**
+     * {@inheritDoc}
+     */
+    public function hasHeader($name): bool
     {
         return is_string($name) && isset($this->headerNames[strtolower($name)]);
     }
 
-    public function getHeader($name)
+    /**
+     * {@inheritDoc}
+     */
+    public function getHeader($name): array
     {
         if (!$this->hasHeader($name)) { return []; }
 
@@ -58,13 +73,19 @@ trait MessageMethodsTrait
         return $this->headers[$name];
     }
 
-    public function getHeaderLine($name)
+    /**
+     * {@inheritDoc}
+     */
+    public function getHeaderLine($name): string
     {
         $header = $this->getHeader($name);
         return empty($header) ? '' : implode(', ', $header);
     }
 
-    public function withHeader($name, $value)
+    /**
+     * {@inheritDoc}
+     */
+    public function withHeader($name, $value): self
     {
         $clone = clone $this;
         $clone->removeHeader($name);
@@ -73,7 +94,10 @@ trait MessageMethodsTrait
         return $clone;
     }
 
-    public function withAddedHeader($name, $value)
+    /**
+     * {@inheritDoc}
+     */
+    public function withAddedHeader($name, $value): self
     {
         if (!$this->hasHeader($name)) {
             return $this->withHeader($name, $value);
@@ -89,7 +113,10 @@ trait MessageMethodsTrait
         return $clone;
     }
 
-    public function withoutHeader($name)
+    /**
+     * {@inheritDoc}
+     */
+    public function withoutHeader($name): self
     {
         $clone = clone $this;
         $clone->removeHeader($name);
@@ -97,12 +124,18 @@ trait MessageMethodsTrait
         return $clone;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getBody(): StreamInterface
     {
         return $this->body;
     }
 
-    public function withBody(StreamInterface $body)
+    /**
+     * {@inheritDoc}
+     */
+    public function withBody(StreamInterface $body): self
     {
         $clone = clone $this;
         $clone->body = $body;
@@ -110,14 +143,14 @@ trait MessageMethodsTrait
         return $clone;
     }
 
-    private function loadHeaders(array $headers)
+    private function loadHeaders(array $headers): void
     {
         foreach ($headers as $name => $value) {
             $this->setHeader($name, $value);
         }
     }
 
-    private function setHeader($name, $value)
+    private function setHeader($name, $value): void
     {
         $name  = $this->validHeaderName($name);
         $index = strtolower($name);
@@ -126,7 +159,7 @@ trait MessageMethodsTrait
         $this->headerNames[$index] = $name;
     }
 
-    private function validHeaderName($name)
+    private function validHeaderName($name): string
     {
         if (!is_string($name) || $this->invalidTokenChars($name)) {
             throw new InvalidArgumentException('Invalid header name argument type - expected valid string token');
@@ -135,12 +168,12 @@ trait MessageMethodsTrait
         return $name;
     }
 
-    private function invalidTokenChars($token)
+    private function invalidTokenChars($token): bool
     {
         return preg_match('/^[a-zA-Z0-9\'`#$%&*+.^_|~!-]+$/', $token) !== 1;
     }
 
-    private function validHeaderValues($headerValues)
+    private function validHeaderValues($headerValues): array
     {
         if (is_string($headerValues)) {
             $headerValues = [$headerValues];
@@ -153,7 +186,7 @@ trait MessageMethodsTrait
         return array_values($headerValues);
     }
 
-    private function legalHeaderStrings(array $headerValues)
+    private function legalHeaderStrings(array $headerValues): bool
     {
         foreach ($headerValues as $value) {
             if (!is_string($value) || $this->illegalHeaderChars($value)) {
@@ -164,7 +197,7 @@ trait MessageMethodsTrait
         return true;
     }
 
-    private function illegalHeaderChars(string $header)
+    private function illegalHeaderChars(string $header): bool
     {
         $illegalCharset   = preg_match("/[^\t\r\n\x20-\x7E\x80-\xFE]/", $header);
         $invalidLineBreak = preg_match("/(?:[^\r]\n|\r[^\n]|\n[^ \t])/", $header);
@@ -172,14 +205,14 @@ trait MessageMethodsTrait
         return $illegalCharset || $invalidLineBreak;
     }
 
-    private function removeHeader($name)
+    private function removeHeader($name): void
     {
         $headerIndex = strtolower($name);
         if (!isset($this->headerNames[$headerIndex])) { return; }
         unset($this->headers[$this->headerNames[$headerIndex]], $this->headerNames[$headerIndex]);
     }
 
-    private function validProtocolVersion($version)
+    private function validProtocolVersion($version): string
     {
         if (!is_string($version)) {
             throw new InvalidArgumentException('Invalid HTTP protocol version type - expected string');

@@ -21,11 +21,11 @@ class ServerData
 {
     private const FILE_ARRAY = ['name', 'type', 'tmp_name', 'error', 'size'];
 
-    private $server;
-    private $get;
-    private $post;
-    private $cookie;
-    private $files;
+    private array $server;
+    private array $get;
+    private array $post;
+    private array $cookie;
+    private array $files;
 
     /**
      * @param array $params Associative array with keys corresponding to server superglobals:
@@ -40,26 +40,41 @@ class ServerData
         $this->files  = $params['files'] ?? [];
     }
 
+    /**
+     * @return string
+     */
     public function method(): string
     {
         return $this->server['REQUEST_METHOD'] ?? 'GET';
     }
 
+    /**
+     * @return UriInterface
+     */
     public function uri(): UriInterface
     {
         return $this->resolveUri();
     }
 
+    /**
+     * @return StreamInterface
+     */
     public function body(): StreamInterface
     {
         return Stream::fromResourceUri('php://input');
     }
 
+    /**
+     * @return array
+     */
     public function headers(): array
     {
         return $this->resolveHeaders();
     }
 
+    /**
+     * @return array
+     */
     public function params(): array
     {
         return [
@@ -72,6 +87,9 @@ class ServerData
         ];
     }
 
+    /**
+     * @return array
+     */
     public function uploadedFiles(): array
     {
         return $this->normalizeFiles($this->files);
@@ -119,7 +137,7 @@ class ServerData
         return $headers;
     }
 
-    private function headerName($name)
+    private function headerName($name): ?string
     {
         if (strpos($name, 'HTTP_') === 0) {
             if ($name === 'HTTP_CONTENT_MD5') { return 'Content-MD5'; }
@@ -130,7 +148,7 @@ class ServerData
             return $this->normalizedHeaderName($name);
         }
 
-        return false;
+        return null;
     }
 
     private function normalizedHeaderName(string $name): string
@@ -138,12 +156,12 @@ class ServerData
         return ucwords(strtolower(str_replace('_', '-', $name)), '-');
     }
 
-    private function authorizationHeader()
+    private function authorizationHeader(): ?string
     {
-        if (!function_exists('apache_request_headers')) { return false; }
+        if (!function_exists('apache_request_headers')) { return null; }
 
         $headers = apache_request_headers();
-        return $headers['Authorization'] ?? $headers['authorization'] ?? false;
+        return $headers['Authorization'] ?? $headers['authorization'] ?? null;
     }
 
     private function normalizeFiles(array $files): array
@@ -190,7 +208,7 @@ class ServerData
         return $filesTree;
     }
 
-    private function buildStructure(array &$files, array $values, string $key, bool $isLastKey)
+    private function buildStructure(array &$files, array $values, string $key, bool $isLastKey): void
     {
         foreach ($values as $name => $value) {
             isset($files[$name]) or $files[$name] = [];

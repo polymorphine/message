@@ -22,12 +22,12 @@ class ServerRequest implements ServerRequestInterface
 {
     use RequestMethodsTrait;
 
-    private $server;
-    private $cookie;
-    private $query;
-    private $parsedBody;
-    private $files;
-    private $attributes = [];
+    private array  $server;
+    private array  $cookie;
+    private array  $query;
+    private ?array $parsedBody;
+    private array  $files;
+    private array  $attributes = [];
 
     /**
      * @param string          $method  Normally one of the common methods defined by RFC 7231 section 4.3
@@ -89,12 +89,12 @@ class ServerRequest implements ServerRequestInterface
         return $this->server;
     }
 
-    public function getCookieParams()
+    public function getCookieParams(): array
     {
         return $this->cookie;
     }
 
-    public function withCookieParams(array $cookies)
+    public function withCookieParams(array $cookies): self
     {
         $clone = clone $this;
         $clone->cookie = $cookies;
@@ -102,12 +102,12 @@ class ServerRequest implements ServerRequestInterface
         return $clone;
     }
 
-    public function getQueryParams()
+    public function getQueryParams(): array
     {
         return $this->query;
     }
 
-    public function withQueryParams(array $query)
+    public function withQueryParams(array $query): self
     {
         $clone = clone $this;
         $clone->query = $query;
@@ -115,12 +115,12 @@ class ServerRequest implements ServerRequestInterface
         return $clone;
     }
 
-    public function getUploadedFiles()
+    public function getUploadedFiles(): array
     {
         return $this->files;
     }
 
-    public function withUploadedFiles(array $uploadedFiles)
+    public function withUploadedFiles(array $uploadedFiles): self
     {
         $clone = clone $this;
         $clone->files = $this->validUploadedFiles($uploadedFiles);
@@ -128,12 +128,12 @@ class ServerRequest implements ServerRequestInterface
         return $clone;
     }
 
-    public function getParsedBody()
+    public function getParsedBody(): ?array
     {
         return $this->parsedBody;
     }
 
-    public function withParsedBody($data)
+    public function withParsedBody($data): self
     {
         if (!is_null($data) && !is_array($data) && !is_object($data)) {
             throw new InvalidArgumentException('Parsed body can be either array/object data structure or null');
@@ -145,7 +145,7 @@ class ServerRequest implements ServerRequestInterface
         return $clone;
     }
 
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return $this->attributes;
     }
@@ -155,7 +155,7 @@ class ServerRequest implements ServerRequestInterface
         return array_key_exists($name, $this->attributes) ? $this->attributes[$name] : $default;
     }
 
-    public function withAttribute($name, $value)
+    public function withAttribute($name, $value): self
     {
         $clone = clone $this;
         $clone->attributes[$name] = $value;
@@ -163,7 +163,7 @@ class ServerRequest implements ServerRequestInterface
         return $clone;
     }
 
-    public function withoutAttribute($name)
+    public function withoutAttribute($name): self
     {
         $clone = clone $this;
         unset($clone->attributes[$name]);
@@ -171,7 +171,7 @@ class ServerRequest implements ServerRequestInterface
         return $clone;
     }
 
-    private function validUploadedFiles(array $files)
+    private function validUploadedFiles(array $files): array
     {
         if (!$this->validFilesTree($files)) {
             throw new InvalidArgumentException('Expected associative array tree with UploadedFileInterface leaves');
@@ -180,7 +180,7 @@ class ServerRequest implements ServerRequestInterface
         return $files;
     }
 
-    private function validFilesTree(array $files)
+    private function validFilesTree(array $files): bool
     {
         foreach ($files as $file) {
             $uploadedFile = is_array($file) && $this->validFilesTree($file) || $file instanceof UploadedFileInterface;

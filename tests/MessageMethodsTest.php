@@ -253,7 +253,7 @@ class MessageMethodsTest extends TestCase
         $this->message()->withAddedHeader($name, 'valid value');
     }
 
-    public function invalidHeaderNames()
+    public function invalidHeaderNames(): array
     {
         return [
             'null name'             => [null],
@@ -275,7 +275,7 @@ class MessageMethodsTest extends TestCase
         $this->message(['test' => $header]);
     }
 
-    public function invalidHeaderValues()
+    public function invalidHeaderValues(): array
     {
         return [
             'null value'                    => [null],
@@ -290,7 +290,7 @@ class MessageMethodsTest extends TestCase
         ];
     }
 
-    private function message(array $headers = [], $version = null)
+    private function message(array $headers = [], $version = null): MessageMethodsClass
     {
         if (!$version) {
             return new MessageMethodsClass(new FakeStream(), $headers);

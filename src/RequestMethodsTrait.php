@@ -19,17 +19,22 @@ trait RequestMethodsTrait
 {
     use MessageMethodsTrait;
 
-    /** @var UriInterface */
-    private $uri;
-    private $target;
-    private $method;
+    private UriInterface $uri;
+    private ?string      $target;
+    private string       $method;
 
-    public function getRequestTarget()
+    /**
+     * {@inheritDoc}
+     */
+    public function getRequestTarget(): string
     {
         return $this->target ?: $this->resolveTargetFromUri();
     }
 
-    public function withRequestTarget($requestTarget)
+    /**
+     * {@inheritDoc}
+     */
+    public function withRequestTarget($requestTarget): self
     {
         $clone = clone $this;
         $clone->target = $this->validRequestTarget($requestTarget);
@@ -37,12 +42,18 @@ trait RequestMethodsTrait
         return $clone;
     }
 
-    public function getMethod()
+    /**
+     * {@inheritDoc}
+     */
+    public function getMethod(): string
     {
         return $this->method;
     }
 
-    public function withMethod($method)
+    /**
+     * {@inheritDoc}
+     */
+    public function withMethod($method): self
     {
         $clone = clone $this;
         $clone->method = $this->validMethod($method);
@@ -50,12 +61,18 @@ trait RequestMethodsTrait
         return $clone;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getUri(): UriInterface
     {
         return $this->uri;
     }
 
-    public function withUri(UriInterface $uri, $preserveHost = false)
+    /**
+     * {@inheritDoc}
+     */
+    public function withUri(UriInterface $uri, $preserveHost = false): self
     {
         $clone = clone $this;
         $clone->uri = $uri;
@@ -64,13 +81,13 @@ trait RequestMethodsTrait
         return $clone;
     }
 
-    private function validRequestTarget($target)
+    private function validRequestTarget($target): ?string
     {
         $invalidTarget = (!$target || !is_string($target) || $target !== '*' && !parse_url($target));
         return $invalidTarget ? null : $target;
     }
 
-    private function validMethod($method)
+    private function validMethod($method): string
     {
         if (!is_string($method) || $this->invalidTokenChars($method)) {
             throw new InvalidArgumentException('Invalid HTTP method name argument. Expected valid string token');
@@ -79,7 +96,7 @@ trait RequestMethodsTrait
         return $method;
     }
 
-    private function resolveHostHeader($preserveHost = true)
+    private function resolveHostHeader($preserveHost = true): void
     {
         $uriHost = $this->uri->getHost();
         if ($preserveHost && $this->hasHeader('host') || !$uriHost) { return; }
@@ -87,7 +104,7 @@ trait RequestMethodsTrait
         $this->setHeader('Host', [$uriHost]);
     }
 
-    private function resolveTargetFromUri()
+    private function resolveTargetFromUri(): string
     {
         $target = $this->uri->getPath();
         $query  = $this->uri->getQuery();

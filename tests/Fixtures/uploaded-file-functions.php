@@ -13,7 +13,7 @@ namespace Polymorphine\Message;
 
 use Polymorphine\Message\Tests\UploadedFileTest as TestConfig;
 
-function move_uploaded_file($filename, $destination)
+function move_uploaded_file($filename, $destination): bool
 {
     if (TestConfig::$errorOnMove) { return false; }
 
