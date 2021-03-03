@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Message package.
@@ -23,15 +23,15 @@ require_once __DIR__ . '/Fixtures/uploaded-file-functions.php';
 
 class UploadedFileTest extends TestCase
 {
-    public static $errorOnMove = false;
+    public static bool $errorOnMove = false;
 
-    private $tempFile;
-    private $movedFile;
+    private ?string $tempFile  = null;
+    private ?string $movedFile = null;
 
-    public function tearDown()
+    public function tearDown(): void
     {
-        if (is_file($this->tempFile)) { unlink($this->tempFile); }
-        if (is_file($this->movedFile)) { unlink($this->movedFile); }
+        if (is_file($this->tempFile ?? '')) { unlink($this->tempFile); }
+        if (is_file($this->movedFile ?? '')) { unlink($this->movedFile); }
         $this->tempFile  = null;
         $this->movedFile = null;
 
@@ -152,7 +152,7 @@ class UploadedFileTest extends TestCase
         ]);
     }
 
-    private function targetPath($name = 'test.txt')
+    private function targetPath($name = 'test.txt'): string
     {
         return $this->movedFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $name;
     }

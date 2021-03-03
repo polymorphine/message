@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Message package.
@@ -19,14 +19,21 @@ use RuntimeException;
 
 class UploadedFile implements UploadedFileInterface
 {
-    protected $stream;
-    protected $isMoved = false;
+    protected StreamInterface $stream;
+    protected bool            $isMoved = false;
 
-    private $errorCode;
-    private $fileSize;
-    private $clientFilename;
-    private $clientMediaType;
+    private int     $errorCode;
+    private ?int    $fileSize;
+    private ?string $clientFilename;
+    private ?string $clientMediaType;
 
+    /**
+     * @param StreamInterface $stream
+     * @param int|null        $size
+     * @param int             $error
+     * @param string|null     $clientFilename
+     * @param string|null     $clientMediaType
+     */
     public function __construct(
         StreamInterface $stream,
         int $size = null,
@@ -58,7 +65,7 @@ class UploadedFile implements UploadedFileInterface
      */
     public static function fromFileArray(array $file): self
     {
-        $stream = Stream::fromResourceUri($file['tmp_name'], 'r');
+        $stream = Stream::fromResourceUri($file['tmp_name']);
         return new self($stream, $file['size'], $file['error'], $file['name'], $file['type']);
     }
 
@@ -68,7 +75,7 @@ class UploadedFile implements UploadedFileInterface
         return $this->stream;
     }
 
-    public function moveTo($targetPath)
+    public function moveTo($targetPath): void
     {
         if (!is_string($targetPath) || empty($targetPath)) {
             throw new InvalidArgumentException('Invalid target path');
@@ -84,22 +91,22 @@ class UploadedFile implements UploadedFileInterface
         $this->isMoved = true;
     }
 
-    public function getSize()
+    public function getSize(): ?int
     {
         return $this->fileSize ?? $this->fileSize = $this->stream->getSize();
     }
 
-    public function getError()
+    public function getError(): int
     {
         return $this->errorCode;
     }
 
-    public function getClientFilename()
+    public function getClientFilename(): ?string
     {
         return $this->clientFilename;
     }
 
-    public function getClientMediaType()
+    public function getClientMediaType(): ?string
     {
         return $this->clientMediaType;
     }
@@ -112,7 +119,7 @@ class UploadedFile implements UploadedFileInterface
         }
     }
 
-    private function checkFileAccess()
+    private function checkFileAccess(): void
     {
         if ($this->errorCode !== UPLOAD_ERR_OK) {
             throw new RuntimeException('Cannot access file - upload error');

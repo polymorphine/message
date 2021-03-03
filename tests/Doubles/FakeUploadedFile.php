@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Message package.
@@ -12,31 +12,37 @@
 namespace Polymorphine\Message\Tests\Doubles;
 
 use Psr\Http\Message\UploadedFileInterface;
+use Psr\Http\Message\StreamInterface;
 
 
 class FakeUploadedFile implements UploadedFileInterface
 {
-    public function getStream()
+    public function getStream(): StreamInterface
+    {
+        return new FakeStream();
+    }
+
+    public function moveTo($targetPath): void
     {
     }
 
-    public function moveTo($targetPath)
+    public function getSize(): ?int
     {
+        return 0;
     }
 
-    public function getSize()
+    public function getError(): int
     {
+        return 0;
     }
 
-    public function getError()
+    public function getClientFilename(): ?string
     {
+        return null;
     }
 
-    public function getClientFilename()
+    public function getClientMediaType(): ?string
     {
-    }
-
-    public function getClientMediaType()
-    {
+        return null;
     }
 }

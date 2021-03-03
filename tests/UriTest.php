@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Message package.
@@ -198,7 +198,7 @@ class UriTest extends TestCase
         $this->uri()->withPort($port);
     }
 
-    public function invalidPorts()
+    public function invalidPorts(): array
     {
         return [
             'bool'           => [true],
@@ -223,7 +223,7 @@ class UriTest extends TestCase
         $this->uri()->withUserInfo($user, $pass);
     }
 
-    public function invalidUserInfoArgs()
+    public function invalidUserInfoArgs(): array
     {
         return [
             'bool username'   => [true, null],
@@ -287,7 +287,7 @@ class UriTest extends TestCase
         $this->uri()->withFragment($fragment);
     }
 
-    public function invalidNonStringArgs()
+    public function invalidNonStringArgs(): array
     {
         return [
             'bool'   => [true],
@@ -379,7 +379,7 @@ class UriTest extends TestCase
         $this->assertSame('http://www.example.com/path/segment?query=segment#foo%5Bbar%5D', (string) $uri);
     }
 
-    private function uri($uri = '')
+    private function uri($uri = ''): Uri
     {
         return is_array($uri) ? new Uri($uri) : Uri::fromString($uri);
     }

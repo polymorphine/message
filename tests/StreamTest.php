@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Message package.
@@ -25,19 +25,12 @@ class StreamTest extends TestCase
     /**
      * @var bool Force error responses from native function calls
      */
-    public static $overrideFunctions = false;
+    public static bool $overrideFunctions = false;
 
-    /**
-     * @var StreamInterface
-     */
-    protected $stream;
+    protected ?StreamInterface $stream = null;
+    protected string           $testFilename = '';
 
-    /**
-     * @var string
-     */
-    protected $testFilename;
-
-    public function tearDown()
+    public function tearDown(): void
     {
         self::$overrideFunctions = false;
         if ($this->stream) { $this->stream->close(); }
@@ -85,7 +78,7 @@ class StreamTest extends TestCase
         Stream::fromResourceUri('php://someFile.txt', $mode);
     }
 
-    public function validModes()
+    public function validModes(): array
     {
         return [['w+b'], ['wb+'], ['xt+'], ['r+t'], ['cb+']];
     }
@@ -104,7 +97,7 @@ class StreamTest extends TestCase
         $this->assertSame($type, gettype($meta));
     }
 
-    public function metaKeys()
+    public function metaKeys(): array
     {
         return [
             ['timed_out', 'boolean'],
@@ -404,16 +397,16 @@ class StreamTest extends TestCase
         $this->assertSame('Hello', $stream->read(5));
     }
 
-    private function stream($resource = null, $mode = null)
+    private function stream($resource = null, $mode = null): Stream
     {
         $resource = $resource ?? 'php://memory';
 
         return $this->stream = is_resource($resource)
             ? new Stream($resource)
-            : Stream::fromResourceUri($resource, $mode);
+            : Stream::fromResourceUri($resource, $mode ?? 'r');
     }
 
-    private function fileStream($mode = null, string $contents = '')
+    private function fileStream($mode = null, string $contents = ''): Stream
     {
         $this->testFilename = tempnam(sys_get_temp_dir(), 'test');
         if ($contents) { file_put_contents($this->testFilename, $contents); }
@@ -421,7 +414,7 @@ class StreamTest extends TestCase
         return $this->stream($this->testFilename, $mode);
     }
 
-    private function streamWithPredefinedConditions($contents, $position)
+    private function streamWithPredefinedConditions($contents, $position): Stream
     {
         $resource = fopen('php://memory', 'w+');
         fwrite($resource, $contents);

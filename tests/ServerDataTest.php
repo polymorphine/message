@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Message package.
@@ -25,9 +25,9 @@ require_once __DIR__ . '/Fixtures/request-factory-functions.php';
 
 class ServerDataTest extends TestCase
 {
-    public static $nativeCallResult;
+    public static ?array $nativeCallResult = null;
 
-    public function tearDown()
+    public function tearDown(): void
     {
         self::$nativeCallResult = null;
     }
@@ -78,7 +78,7 @@ class ServerDataTest extends TestCase
         $this->assertTrue(ServerRequest::fromServerData($data)->hasHeader($headerName));
     }
 
-    public function normalizeHeaderNames()
+    public function normalizeHeaderNames(): array
     {
         return [
             ['HTTP_ACCEPT', 'Accept'],
@@ -114,7 +114,7 @@ class ServerDataTest extends TestCase
         $files['single'] = $this->fileData('avatar.png');
         $nested = [];
         foreach ($files['single'] as $name => $value) {
-            $nested[$name] = [$value, 'nested' => $value, 'multi-nested' => [$value, 'sub-nested' => $value]];
+            $nested[$name] = [0 => $value, 'nested' => $value, 'multi-nested' => [0 => $value, 'sub-nested' => $value]];
         }
         $files['multi'] = $nested;
 
@@ -183,12 +183,12 @@ class ServerDataTest extends TestCase
         $server->params();
     }
 
-    private function serverData(array $data = [])
+    private function serverData(array $data = []): ServerData
     {
         return new ServerData($data);
     }
 
-    private function basicData()
+    private function basicData(): array
     {
         return [
             'post'   => ['name' => 'post value'],
@@ -199,7 +199,7 @@ class ServerDataTest extends TestCase
         ];
     }
 
-    private function fileData($name)
+    private function fileData($name): array
     {
         $multi = is_array($name);
         $fill  = function ($value) use ($name) { return array_fill(0, count($name), $value); };
@@ -213,7 +213,7 @@ class ServerDataTest extends TestCase
         ];
     }
 
-    private function serverContext()
+    private function serverContext(): array
     {
         return [
             'SCRIPT_URL'           => '/',

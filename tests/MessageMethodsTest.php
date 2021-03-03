@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Message package.
@@ -253,12 +253,10 @@ class MessageMethodsTest extends TestCase
         $this->message()->withAddedHeader($name, 'valid value');
     }
 
-    public function invalidHeaderNames()
+    public function invalidHeaderNames(): array
     {
         return [
-            'null name'             => [null],
             'empty name'            => [''],
-            'not a string name'     => [23],
             'spaced name'           => ['header name'],
             'invalid name char "@"' => ['email@example']
         ];
@@ -275,7 +273,7 @@ class MessageMethodsTest extends TestCase
         $this->message(['test' => $header]);
     }
 
-    public function invalidHeaderValues()
+    public function invalidHeaderValues(): array
     {
         return [
             'null value'                    => [null],
@@ -290,7 +288,7 @@ class MessageMethodsTest extends TestCase
         ];
     }
 
-    private function message(array $headers = [], $version = null)
+    private function message(array $headers = [], $version = null): MessageMethodsClass
     {
         if (!$version) {
             return new MessageMethodsClass(new FakeStream(), $headers);

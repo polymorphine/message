@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Message package.
@@ -43,7 +43,7 @@ class ServerRequestTest extends TestCase
         $this->assertSame($params, $this->request([$key => $params])->{$method}());
     }
 
-    public function instanceProperties()
+    public function instanceProperties(): array
     {
         return [
             'cookie' => ['getCookieParams', ['key' => 'value'], 'cookie'],
@@ -83,7 +83,7 @@ class ServerRequestTest extends TestCase
         $this->assertNotSame($derived1, $derived2);
     }
 
-    public function mutatorMethods()
+    public function mutatorMethods(): array
     {
         return [
             'cookie' => ['withCookieParams', ['key' => 'value']],
@@ -147,7 +147,7 @@ class ServerRequestTest extends TestCase
         $this->assertSame($files, $request->getUploadedFiles());
     }
 
-    private function request(array $params = [], $method = 'GET', $headers = [])
+    private function request(array $params = [], $method = 'GET', $headers = []): ServerRequest
     {
         return new ServerRequest($method, Uri::fromString(), new Doubles\FakeStream(), $headers, $params);
     }

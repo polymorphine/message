@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Message package.
@@ -14,7 +14,7 @@ namespace Polymorphine\Message;
 
 trait StatusCodesTrait
 {
-    private $statusCodes = [
+    private array $statusCodes = [
         // INFORMATIONAL CODES
         100 => 'Continue',
         101 => 'Switching Protocols',

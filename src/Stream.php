@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Message package.
@@ -21,10 +21,10 @@ class Stream implements StreamInterface
 {
     protected $resource;
 
-    private $metaData;
-    private $readable;
-    private $writable;
-    private $seekable;
+    private ?array $metaData;
+    private ?bool  $readable;
+    private ?bool  $writable;
+    private ?bool  $seekable;
 
     /**
      * @param resource $resource One of the stream type resources
@@ -40,13 +40,14 @@ class Stream implements StreamInterface
         $this->resource = $resource;
     }
 
-    public static function fromResourceUri(string $streamUri, $mode = 'r')
+    public static function fromResourceUri(string $streamUri, $mode = 'r'): self
     {
         set_error_handler(function () use ($mode) {
             restore_error_handler();
-            throw preg_match('/^[acrwx](?:\+?[tb]?|[tb]?\+?)$/', $mode)
-                ? new RuntimeException('Invalid stream reference')
-                : new InvalidArgumentException('Invalid stream resource mode');
+            if (preg_match('/^[acrwx](?:\+?[tb]?|[tb]?\+?)$/', $mode)) {
+                throw new RuntimeException('Invalid stream reference');
+            }
+            throw new InvalidArgumentException('Invalid stream resource mode');
         }, E_WARNING);
         $resource = fopen($streamUri, $mode);
         restore_error_handler();
@@ -54,7 +55,7 @@ class Stream implements StreamInterface
         return new self($resource);
     }
 
-    public static function fromBodyString(string $body)
+    public static function fromBodyString(string $body): self
     {
         $stream = new self(fopen('php://temp', 'w+b'));
         $stream->write($body);
@@ -63,7 +64,7 @@ class Stream implements StreamInterface
         return $stream;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         try {
             $this->rewind();
@@ -73,7 +74,7 @@ class Stream implements StreamInterface
         }
     }
 
-    public function close()
+    public function close(): void
     {
         $resource = $this->detach();
         if ($resource) { fclose($resource); }
@@ -94,12 +95,12 @@ class Stream implements StreamInterface
         return $resource;
     }
 
-    public function getSize()
+    public function getSize(): ?int
     {
         return $this->resource ? fstat($this->resource)['size'] : null;
     }
 
-    public function tell()
+    public function tell(): int
     {
         if (!$this->resource) {
             throw new RuntimeException('Pointer position not available in detached resource');
@@ -113,19 +114,19 @@ class Stream implements StreamInterface
         return $position;
     }
 
-    public function eof()
+    public function eof(): bool
     {
         return $this->resource ? feof($this->resource) : true;
     }
 
-    public function isSeekable()
+    public function isSeekable(): bool
     {
         if (isset($this->seekable)) { return $this->seekable; }
 
         return $this->seekable = $this->getMetadata('seekable');
     }
 
-    public function seek($offset, $whence = SEEK_SET)
+    public function seek($offset, $whence = SEEK_SET): void
     {
         if (!$this->isSeekable()) {
             throw new RuntimeException('Stream is not seekable or detached');
@@ -137,12 +138,12 @@ class Stream implements StreamInterface
         }
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->seek(0);
     }
 
-    public function isWritable()
+    public function isWritable(): bool
     {
         if (isset($this->writable)) { return $this->writable; }
 
@@ -152,7 +153,7 @@ class Stream implements StreamInterface
         return $this->writable = (isset($writable[$mode[0]]) || strstr($mode, '+'));
     }
 
-    public function write($string)
+    public function write($string): int
     {
         if (!$this->resource) {
             throw new RuntimeException('No resource available; cannot write');
@@ -170,7 +171,7 @@ class Stream implements StreamInterface
         return $bytesWritten;
     }
 
-    public function isReadable()
+    public function isReadable(): bool
     {
         if (isset($this->readable)) { return $this->readable; }
 
@@ -179,7 +180,7 @@ class Stream implements StreamInterface
         return $this->readable = ($mode[0] === 'r' || strstr($mode, '+'));
     }
 
-    public function read($length)
+    public function read($length): string
     {
         if (!$this->resource) {
             throw new RuntimeException('No resource available; cannot read');
@@ -197,7 +198,7 @@ class Stream implements StreamInterface
         return $streamData;
     }
 
-    public function getContents()
+    public function getContents(): string
     {
         if (!$this->isReadable()) {
             throw new RuntimeException('Stream is not readable or detached');
@@ -217,7 +218,7 @@ class Stream implements StreamInterface
             return $key ? null : [];
         }
 
-        $this->metaData = $this->metaData ?: stream_get_meta_data($this->resource);
+        $this->metaData ??= stream_get_meta_data($this->resource);
         return $key ? $this->metaData[$key] ?? null : $this->metaData;
     }
 }
