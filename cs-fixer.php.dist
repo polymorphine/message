@@ -1,5 +1,5 @@
 <?php
 
-use Polymorphine\CodeStandards\FixerFactory;
+use Polymorphine\Dev\FixerFactory;
 
 return FixerFactory::createFor('Polymorphine/Message', __DIR__);
