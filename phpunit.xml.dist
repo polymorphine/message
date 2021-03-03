@@ -1,28 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <phpunit
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/7.0/phpunit.xsd"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+    cacheResultFile="temp/.phpunit.result.cache"
     colors="true"
     bootstrap="vendor/autoload.php"
 >
     <php>
         <ini name="error_reporting" value="-1" />
     </php>
-
     <testsuites>
-        <testsuite name="Polymorphine Psr-7 Message tests">
+        <testsuite name="Polymorphine/Message tests">
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
-
-    <filter>
-        <whitelist>
+    <coverage>
+        <include>
             <directory>./src/</directory>
-        </whitelist>
-    </filter>
-    <logging>
-        <log type="coverage-clover" target="build/logs/clover.xml"/>
-        <log type="coverage-text" target="php://stdout" showOnlySummary="true"/>
-    </logging>
+        </include>
+    </coverage>
 </phpunit>
