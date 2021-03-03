@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Message package.
@@ -403,7 +403,7 @@ class StreamTest extends TestCase
 
         return $this->stream = is_resource($resource)
             ? new Stream($resource)
-            : Stream::fromResourceUri($resource, $mode);
+            : Stream::fromResourceUri($resource, $mode ?? 'r');
     }
 
     private function fileStream($mode = null, string $contents = ''): Stream

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Message package.
@@ -30,8 +30,8 @@ class UploadedFileTest extends TestCase
 
     public function tearDown(): void
     {
-        if (is_file($this->tempFile)) { unlink($this->tempFile); }
-        if (is_file($this->movedFile)) { unlink($this->movedFile); }
+        if (is_file($this->tempFile ?? '')) { unlink($this->tempFile); }
+        if (is_file($this->movedFile ?? '')) { unlink($this->movedFile); }
         $this->tempFile  = null;
         $this->movedFile = null;
 

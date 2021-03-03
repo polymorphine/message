@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Message package.
@@ -256,9 +256,7 @@ class MessageMethodsTest extends TestCase
     public function invalidHeaderNames(): array
     {
         return [
-            'null name'             => [null],
             'empty name'            => [''],
-            'not a string name'     => [23],
             'spaced name'           => ['header name'],
             'invalid name char "@"' => ['email@example']
         ];

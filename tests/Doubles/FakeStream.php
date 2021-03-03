@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Message package.
@@ -91,7 +91,7 @@ class FakeStream implements StreamInterface
     public function read($length): string
     {
         $send = substr($this->stream, 0, $length);
-        $this->stream = substr($this->stream, $length);
+        $this->stream = substr($this->stream, $length) ?: '';
         return $send;
     }
 
