@@ -3,11 +3,12 @@ on: [push, pull_request]
 
 jobs:
   full-build:
+    name: "Coding standards & coverage tests"
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
-        operating-system: [ubuntu-latest]
-        php-versions: ["7.4"]
+        operating-system: ['ubuntu-latest']
+        php-versions: ['7.4']
     env:
       extensions: pcov, dom, json, libxml, mbstring, pdo_sqlite, soap, xml, xmlwriter
       key: cache-v2
@@ -36,15 +37,12 @@ jobs:
           ini-values: assert.exception=1, zend.assertions=1
       - name: "Validate composer.json"
         run: composer validate
-      - name: "Set composer cache directory"
-        id: composer-cache-full-build
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
       - name: "Setup composer cache"
         uses: actions/cache@v2
         with:
-          path: ${{ steps.composer-cache-full-build.outputs.dir }}
-          key: ${{ runner.os }}-composer-full-${{ hashFiles('**/composer.json') }}
-          restore-keys: ${{ runner.os }}-composer-full-
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
       - name: "Install highest dependencies"
         run: composer update --no-interaction --no-ansi --no-progress --no-suggest --prefer-stable
       - name: "Coding standard Php-CS-Fixer checks"
@@ -63,16 +61,19 @@ jobs:
           COVERALLS_RUN_LOCALLY: 1
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
 
-  lowest-build:
+  php-os-builds:
+    name: "PHP 8 tests"
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
-        operating-system: [ubuntu-latest]
-        php-versions: ["7.4"]
+        operating-system: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        php-versions: ['8.0', '8.1']
     env:
       extensions: dom, json, libxml, mbstring, pdo_sqlite, soap, xml, xmlwriter
       key: cache-v2
     steps:
+      - name: "Turn off git EOL conversion"
+        run: git config --global core.autocrlf false
       - name: "Checkout"
         uses: actions/checkout@v2
       - name: "Setup PHP extensions cache environment"
@@ -95,16 +96,13 @@ jobs:
           coverage: none
           extensions: ${{ env.extensions }}
           ini-values: assert.exception=1, zend.assertions=1
-      - name: "Set composer cache directory"
-        id: composer-cache-lowest-build
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
       - name: "Setup composer cache"
         uses: actions/cache@v2
         with:
-          path: ${{ steps.composer-cache-lowest-build.outputs.dir }}
-          key: ${{ runner.os }}-composer-low-${{ hashFiles('**/composer.json') }}
-          restore-keys: ${{ runner.os }}-composer-low-
-      - name: "Install lowest dependencies"
-        run: composer update --no-interaction --no-ansi --no-progress --no-suggest --prefer-stable --prefer-lowest
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-php${{ matrix.php-versions }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-php${{ matrix.php-versions }}-composer-
+      - name: "Install highest dependencies"
+        run: composer update --no-interaction --no-ansi --no-progress --no-suggest --prefer-stable
       - name: "Run PhpUnit tests (no coverage)"
         run: vendor/bin/phpunit --no-coverage
