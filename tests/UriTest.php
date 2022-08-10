@@ -126,10 +126,10 @@ class UriTest extends TestCase
 
         $uri = $this->uri('http:foo.bar:500');
         $this->assertNull($uri->getPort(), 'This is relative path with scheme - port not specified');
-        $uri = $uri->withPort(443); //SET Port
+        $uri = $uri->withPort(443);
         $this->assertSame(443, $uri->getPort(), 'No host was given but port was set with modifier');
         $this->assertNull($this->uri((string) $uri)->getPort(), 'Without host port will not be part of uri string even if specified');
-        $uri = $uri->withHost('example.com'); //SET Host
+        $uri = $uri->withHost('example.com');
         $this->assertSame(443, $this->uri((string) $uri)->getPort(), 'Port included in uri string when host became present');
         $this->assertNull($this->uri((string) $uri->withScheme('https'))->getPort(), 'Changed scheme match its default port - not present in uri string');
     }
@@ -154,8 +154,8 @@ class UriTest extends TestCase
         $this->assertSame('?foo=bar&baz=qux#foo', (string) $uri->withScheme('')->withHost('')->withPath(''));
         $this->assertSame('#foo', (string) $uri->withScheme('')->withHost('')->withPath('')->withQuery(''));
 
-        //Invalid links, but valid URIs
-        //Browsers would ignore 'http' scheme (but not https) and resolve these into valid relative links
+        // Invalid links, but valid URIs
+        // Browsers would ignore 'http' scheme (but not https) and resolve these into valid relative links
         $this->assertSame('https:/foo/bar?foo=bar&baz=qux#foo', (string) $uri->withUserInfo('')->withHost(''));
         $this->assertSame('https:/foo/bar?foo=bar&baz=qux#foo', (string) $uri->withHost(''));
         $this->assertSame('https:#foo', (string) $uri->withHost('')->withPath('')->withQuery(''));
@@ -316,7 +316,7 @@ class UriTest extends TestCase
         $this->assertSame('fo%C3%B3%20bar.baz', $uri->withHost('foó%20bar.baz')->getHost());
         $this->assertSame('%E2%9E%A1/foo%20bar', $uri->withPath('%E2%9E%A1/foo bar')->getPath());
         $this->assertSame('%E2%9E%A1=foo%20bar&%E4%BE%8B%E5%AD%90=%E6%B5%8B%E8%AF%95', $uri->withQuery('%E2%9E%A1=foo%20bar&%E4%BE%8B%E5%AD%90=测试')->getQuery());
-        $this->assertSame('%D9%85%D8%AB%D8%A7%D9%84', $uri->withFragment('مثا%D9%84')->getFragment()); //Right-to-left-literals
+        $this->assertSame('%D9%85%D8%AB%D8%A7%D9%84', $uri->withFragment('مثا%D9%84')->getFragment()); // Right-to-left-literals
     }
 
     public function testEncodedNormalizedToUppercase()

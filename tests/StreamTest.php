@@ -45,7 +45,7 @@ class StreamTest extends TestCase
 
     public function testInstantiateWithStreamResource()
     {
-        $this->assertInstanceOf(StreamInterface::class, (new Stream(fopen('php://input', 'r+b'))));
+        $this->assertInstanceOf(StreamInterface::class, new Stream(fopen('php://input', 'r+b')));
     }
 
     public function testNonResourceConstructorArgument_ThrowsException()
