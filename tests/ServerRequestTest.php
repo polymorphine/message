@@ -147,8 +147,8 @@ class ServerRequestTest extends TestCase
         $this->assertSame($files, $request->getUploadedFiles());
     }
 
-    private function request(array $params = [], $method = 'GET', $headers = []): ServerRequest
+    private function request(array $params = []): ServerRequest
     {
-        return new ServerRequest($method, Uri::fromString(), new Doubles\FakeStream(), $headers, $params);
+        return new ServerRequest('GET', Uri::fromString(), null, [], $params);
     }
 }

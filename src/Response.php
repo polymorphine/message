@@ -25,26 +25,26 @@ class Response implements ResponseInterface
     private string $reason;
 
     /**
-     * @param int             $statusCode Normally one of the status codes defined by RFC 7231 section 6
-     * @param StreamInterface $body
-     * @param array           $headers    Associative array of header strings or arrays of header strings
-     * @param array           $params     Associative array with following keys and its default values
-     *                                    when key is not present or its value is null:
-     *                                    - version - http protocol version (default: '1.1')
-     *                                    - reason - reason phrase normally associated with $statusCode, so by
-     *                                    default it will be resolved from it.
+     * @param int              $statusCode Normally one of the status codes defined by RFC 7231 section 6
+     * @param ?StreamInterface $body
+     * @param array            $headers    Associative array of header strings or arrays of header strings
+     * @param array            $params     Associative array with following keys and its default values
+     *                                     when key is not present or its value is null:
+     *                                     - version - http protocol version (default: '1.1')
+     *                                     - reason - reason phrase normally associated with $statusCode, so by
+     *                                     default it will be resolved from it.
      *
      * @see https://tools.ietf.org/html/rfc7231#section-6
      * @see StatusCodesTrait
      */
     public function __construct(
         int $statusCode,
-        StreamInterface $body,
+        ?StreamInterface $body = null,
         array $headers = [],
         array $params = []
     ) {
         $this->status  = $this->validStatusCode($statusCode);
-        $this->body    = $body;
+        $this->body    = $body ?? Stream::fromBodyString('');
         $this->reason  = $this->validReasonPhrase($params['reason'] ?? '');
         $this->version = isset($params['version']) ? $this->validProtocolVersion($params['version']) : '1.1';
         $this->loadHeaders($headers);
@@ -90,12 +90,12 @@ class Response implements ResponseInterface
         if ($status < 300 || $status > 399) {
             throw new InvalidArgumentException('Invalid status code for redirect response');
         }
-        return new self($status, new Stream(fopen('php://temp', 'r')), ['Location' => (string) $uri]);
+        return new self($status, null, ['Location' => (string) $uri]);
     }
 
     public static function notFound(StreamInterface $body = null): self
     {
-        return new self(404, $body ?: Stream::fromResourceUri('php://temp'));
+        return new self(404, $body);
     }
 
     public function getStatusCode(): int

@@ -21,27 +21,27 @@ class Request implements RequestInterface
     use RequestMethodsTrait;
 
     /**
-     * @param string          $method  Normally one of the common methods defined by RFC 7231 section 4.3
-     * @param UriInterface    $uri
-     * @param StreamInterface $body
-     * @param array           $headers Associative array of header strings or arrays of header strings
-     * @param array           $params  Associative array with following keys and its default values
-     *                                 when key is not present or its value is null:
-     *                                 - version - http protocol version (default: '1.1')
-     *                                 - target - request target (default: resolved from passed $uri param)
+     * @param string           $method  Normally one of the common methods defined by RFC 7231 section 4.3
+     * @param UriInterface     $uri
+     * @param ?StreamInterface $body
+     * @param array            $headers Associative array of header strings or arrays of header strings
+     * @param array            $params  Associative array with following keys and its default values
+     *                                  when key is not present or its value is null:
+     *                                  - version - http protocol version (default: '1.1')
+     *                                  - target - request target (default: resolved from passed $uri param)
      *
      * @see https://tools.ietf.org/html/rfc7231#section-4.3
      */
     public function __construct(
         string $method,
         UriInterface $uri,
-        StreamInterface $body,
+        ?StreamInterface $body = null,
         array $headers = [],
         array $params = []
     ) {
         $this->method  = $this->validMethod($method);
         $this->uri     = $uri;
-        $this->body    = $body;
+        $this->body    = $body ?? Stream::fromBodyString('');
         $this->version = isset($params['version']) ? $this->validProtocolVersion($params['version']) : '1.1';
         $this->target  = isset($params['target']) ? $this->validRequestTarget($params['target']) : null;
         $this->loadHeaders($headers);

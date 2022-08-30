@@ -19,7 +19,7 @@ use RuntimeException;
 
 class Stream implements StreamInterface
 {
-    protected $resource;
+    private $resource;
 
     private ?array $metaData;
     private ?bool  $readable;
@@ -116,7 +116,7 @@ class Stream implements StreamInterface
 
     public function eof(): bool
     {
-        return $this->resource ? feof($this->resource) : true;
+        return !$this->resource || feof($this->resource);
     }
 
     public function isSeekable(): bool
