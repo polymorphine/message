@@ -25,26 +25,26 @@ class Response implements ResponseInterface
     private string $reason;
 
     /**
-     * @param int             $statusCode Normally one of the status codes defined by RFC 7231 section 6
-     * @param StreamInterface $body
-     * @param array           $headers    Associative array of header strings or arrays of header strings
-     * @param array           $params     Associative array with following keys and its default values
-     *                                    when key is not present or its value is null:
-     *                                    - version - http protocol version (default: '1.1')
-     *                                    - reason - reason phrase normally associated with $statusCode, so by
-     *                                    default it will be resolved from it.
+     * @param int              $statusCode Normally one of the status codes defined by RFC 7231 section 6
+     * @param ?StreamInterface $body
+     * @param array            $headers    Associative array of header strings or arrays of header strings
+     * @param array            $params     Associative array with following keys and its default values
+     *                                     when key is not present or its value is null:
+     *                                     - version - http protocol version (default: '1.1')
+     *                                     - reason - reason phrase normally associated with $statusCode, so by
+     *                                     default it will be resolved from it.
      *
      * @see https://tools.ietf.org/html/rfc7231#section-6
      * @see StatusCodesTrait
      */
     public function __construct(
         int $statusCode,
-        StreamInterface $body,
+        ?StreamInterface $body = null,
         array $headers = [],
         array $params = []
     ) {
         $this->status  = $this->validStatusCode($statusCode);
-        $this->body    = $body;
+        $this->body    = $body ?? Stream::fromBodyString('');
         $this->reason  = $this->validReasonPhrase($params['reason'] ?? '');
         $this->version = isset($params['version']) ? $this->validProtocolVersion($params['version']) : '1.1';
         $this->loadHeaders($headers);
@@ -66,8 +66,8 @@ class Response implements ResponseInterface
     }
 
     /**
-     * There's a XOR operator between $defaultEncode and $encodeOptions,
-     * which means that if option is set in both provided and default it
+     * There's a XOR operator between $defaultOptions and $encodeOptions,
+     * which means that if an option is set in both provided and default it
      * will be switched off.
      *
      * @param array $data
@@ -76,11 +76,10 @@ class Response implements ResponseInterface
      *
      * @return self
      */
-    public static function json(array $data, int $statusCode = 200, $encodeOptions = 0): self
+    public static function json(array $data, int $statusCode = 200, int $encodeOptions = 0): self
     {
-        $defaultEncode = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT |
-                         JSON_UNESCAPED_SLASHES | JSON_FORCE_OBJECT;
-        $serialized = json_encode($data, $defaultEncode ^ $encodeOptions);
+        $defaultOptions = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES;
+        $serialized     = $data ? json_encode($data, $defaultOptions ^ $encodeOptions) : '{}';
 
         return new self($statusCode, Stream::fromBodyString($serialized), ['Content-Type' => 'application/json']);
     }
@@ -90,12 +89,22 @@ class Response implements ResponseInterface
         if ($status < 300 || $status > 399) {
             throw new InvalidArgumentException('Invalid status code for redirect response');
         }
-        return new self($status, new Stream(fopen('php://temp', 'r')), ['Location' => (string) $uri]);
+        return new self($status, null, ['Location' => (string) $uri]);
+    }
+
+    public static function badRequest(StreamInterface $body = null): self
+    {
+        return new self(400, $body);
+    }
+
+    public static function unauthorized(StreamInterface $body = null): self
+    {
+        return new self(401, $body);
     }
 
     public static function notFound(StreamInterface $body = null): self
     {
-        return new self(404, $body ?: Stream::fromResourceUri('php://temp'));
+        return new self(404, $body);
     }
 
     public function getStatusCode(): int

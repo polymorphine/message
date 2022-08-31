@@ -131,17 +131,16 @@ class ResponseTest extends TestCase
     public function testNamedConstructors()
     {
         $this->equivalentConstructs(
-            new Response(303, new FakeStream(), ['Location' => '/foo/bar/234']),
+            new Response(303, null, ['Location' => '/foo/bar/234']),
             Response::redirect(Uri::fromString('/foo/bar/234'))
         );
         $this->equivalentConstructs(
-            new Response(301, new FakeStream(), ['Location' => '/foo/bar/baz']),
+            new Response(301, null, ['Location' => '/foo/bar/baz']),
             Response::redirect('/foo/bar/baz', 301)
         );
-        $this->equivalentConstructs(
-            new Response(404, new FakeStream()),
-            Response::notFound()
-        );
+        $this->equivalentConstructs(new Response(400), Response::badRequest());
+        $this->equivalentConstructs(new Response(401), Response::unauthorized());
+        $this->equivalentConstructs(new Response(404), Response::notFound());
         $this->equivalentConstructs(
             new Response(404, new FakeStream('Not Found. Sorry.')),
             Response::notFound(new FakeStream('Not Found. Sorry.'))
@@ -184,6 +183,6 @@ class ResponseTest extends TestCase
 
     private function response($status = 200, $reason = null): Response
     {
-        return new Response($status, new FakeStream(), [], ['reason' => $reason]);
+        return new Response($status, null, [], ['reason' => $reason]);
     }
 }

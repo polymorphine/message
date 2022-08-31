@@ -12,7 +12,6 @@
 namespace Polymorphine\Message\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Message\Tests\Doubles\FakeStream;
 use Polymorphine\Message\Request;
 use Polymorphine\Message\Uri;
 use Psr\Http\Message\RequestInterface;
@@ -142,9 +141,9 @@ class RequestTest extends TestCase
             $uri = Uri::fromString();
         }
         if (!$target) {
-            return new Request($method, $uri, new FakeStream(), $headers, []);
+            return new Request($method, $uri, null, $headers, []);
         }
 
-        return new Request($method, $uri, new FakeStream(), $headers, ['target' => $target]);
+        return new Request($method, $uri, null, $headers, ['target' => $target]);
     }
 }
