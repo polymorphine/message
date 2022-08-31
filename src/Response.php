@@ -92,6 +92,16 @@ class Response implements ResponseInterface
         return new self($status, null, ['Location' => (string) $uri]);
     }
 
+    public static function badRequest(StreamInterface $body = null): self
+    {
+        return new self(400, $body);
+    }
+
+    public static function unauthorized(StreamInterface $body = null): self
+    {
+        return new self(401, $body);
+    }
+
     public static function notFound(StreamInterface $body = null): self
     {
         return new self(404, $body);

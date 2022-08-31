@@ -138,10 +138,9 @@ class ResponseTest extends TestCase
             new Response(301, null, ['Location' => '/foo/bar/baz']),
             Response::redirect('/foo/bar/baz', 301)
         );
-        $this->equivalentConstructs(
-            new Response(404),
-            Response::notFound()
-        );
+        $this->equivalentConstructs(new Response(400), Response::badRequest());
+        $this->equivalentConstructs(new Response(401), Response::unauthorized());
+        $this->equivalentConstructs(new Response(404), Response::notFound());
         $this->equivalentConstructs(
             new Response(404, new FakeStream('Not Found. Sorry.')),
             Response::notFound(new FakeStream('Not Found. Sorry.'))
