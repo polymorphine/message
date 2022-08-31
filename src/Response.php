@@ -66,8 +66,8 @@ class Response implements ResponseInterface
     }
 
     /**
-     * There's a XOR operator between $defaultEncode and $encodeOptions,
-     * which means that if option is set in both provided and default it
+     * There's a XOR operator between $defaultOptions and $encodeOptions,
+     * which means that if an option is set in both provided and default it
      * will be switched off.
      *
      * @param array $data
@@ -76,11 +76,10 @@ class Response implements ResponseInterface
      *
      * @return self
      */
-    public static function json(array $data, int $statusCode = 200, $encodeOptions = 0): self
+    public static function json(array $data, int $statusCode = 200, int $encodeOptions = 0): self
     {
-        $defaultEncode = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT |
-                         JSON_UNESCAPED_SLASHES | JSON_FORCE_OBJECT;
-        $serialized = json_encode($data, $defaultEncode ^ $encodeOptions);
+        $defaultOptions = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES;
+        $serialized     = $data ? json_encode($data, $defaultOptions ^ $encodeOptions) : '{}';
 
         return new self($statusCode, Stream::fromBodyString($serialized), ['Content-Type' => 'application/json']);
     }
