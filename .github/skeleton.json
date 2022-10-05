@@ -1,0 +1,8 @@
+{
+    "package.name": "Polymorphine/Message",
+    "repository.name": "polymorphine/message",
+    "package.description": "PSR-7 Http message implementation",
+    "namespace.src": "Polymorphine\\Message",
+    "author.name": "Shudd3r",
+    "author.email": "q3.shudder@gmail.com"
+}
