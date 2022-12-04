@@ -28,9 +28,11 @@ class MessageMethodsTest extends TestCase
     public function testSetSupportedProtocolVersion()
     {
         $this->assertSame('2', $this->message([], '2')->getProtocolVersion());
+        $this->assertSame('2.0', $this->message([], '2.0')->getProtocolVersion());
         $this->assertSame('1.0', $this->message()->withProtocolVersion('1.0')->getProtocolVersion());
         $this->assertSame('1.1', $this->message()->withProtocolVersion('1.1')->getProtocolVersion());
         $this->assertSame('2', $this->message()->withProtocolVersion('2')->getProtocolVersion());
+        $this->assertSame('2.0', $this->message()->withProtocolVersion('2.0')->getProtocolVersion());
     }
 
     public function testProtocolVersionChange_ReturnsNewObject()

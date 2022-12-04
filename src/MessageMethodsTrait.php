@@ -21,7 +21,7 @@ trait MessageMethodsTrait
     private string          $version;
     private array           $headers;
 
-    private array $supportedProtocolVersions = ['1.0', '1.1', '2'];
+    private array $supportedProtocolVersions = ['1.0', '1.1', '2', '2.0'];
 
     private array $headerNames = [];
 
@@ -200,7 +200,7 @@ trait MessageMethodsTrait
     private function illegalHeaderChars(string $header): bool
     {
         $illegalCharset   = preg_match("/[^\t\r\n\x20-\x7E\x80-\xFE]/", $header);
-        $invalidLineBreak = preg_match("/(?:[^\r]\n|\r[^\n]|\n[^ \t])/", $header);
+        $invalidLineBreak = preg_match("/([^\r]\n|\r[^\n]|\n[^ \t])/", $header);
 
         return $illegalCharset || $invalidLineBreak;
     }

@@ -97,9 +97,7 @@ class ServerData
 
     private function protocolVersion(): string
     {
-        return isset($this->server['SERVER_PROTOCOL'])
-            ? explode('/', $this->server['SERVER_PROTOCOL'])[1]
-            : '1.1';
+        return substr($this->server['SERVER_PROTOCOL'] ?? 'HTTP/1.1', 5) ?: '1.1';
     }
 
     private function resolveUri(): UriInterface
