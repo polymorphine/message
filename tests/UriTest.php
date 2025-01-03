@@ -189,7 +189,8 @@ class UriTest extends TestCase
     }
 
     /**
-     * @param $port
+     * @param mixed $port
+     *
      * @dataProvider invalidPorts
      */
     public function testWithPortInvalidArgument_ThrowsException($port)
@@ -213,8 +214,9 @@ class UriTest extends TestCase
     }
 
     /**
-     * @param $user
-     * @param $pass
+     * @param mixed $user
+     * @param mixed $pass
+     *
      * @dataProvider invalidUserInfoArgs
      */
     public function testWithUserInfoInvalidArgument_ThrowsException($user, $pass)
@@ -238,7 +240,8 @@ class UriTest extends TestCase
     }
 
     /**
-     * @param $scheme
+     * @param mixed $scheme
+     *
      * @dataProvider invalidNonStringArgs
      */
     public function testWithSchemeNonStringArgument_ThrowsException($scheme)
@@ -248,7 +251,8 @@ class UriTest extends TestCase
     }
 
     /**
-     * @param $host
+     * @param mixed $host
+     *
      * @dataProvider invalidNonStringArgs
      */
     public function testWithHostNonStringArgument_ThrowsException($host)
@@ -258,7 +262,8 @@ class UriTest extends TestCase
     }
 
     /**
-     * @param $path
+     * @param mixed $path
+     *
      * @dataProvider invalidNonStringArgs
      */
     public function testWithPathNonStringArgument_ThrowsException($path)
@@ -268,7 +273,8 @@ class UriTest extends TestCase
     }
 
     /**
-     * @param $query
+     * @param mixed $query
+     *
      * @dataProvider invalidNonStringArgs
      */
     public function testWithQueryNonStringArgument_ThrowsException($query)
@@ -278,7 +284,8 @@ class UriTest extends TestCase
     }
 
     /**
-     * @param $fragment
+     * @param mixed $fragment
+     *
      * @dataProvider invalidNonStringArgs
      */
     public function testWithFragmentNonStringArgument_ThrowsException($fragment)

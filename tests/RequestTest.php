@@ -15,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Polymorphine\Message\Request;
 use Polymorphine\Message\Uri;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\UriInterface;
 use InvalidArgumentException;
 
 
@@ -26,27 +27,26 @@ class RequestTest extends TestCase
     }
 
     /**
-     * @dataProvider mutatorMethods
+     * @param callable $mutate fn(Request) => Request
      *
-     * @param $method
-     * @param $param
+     * @dataProvider mutatorMethods
      */
-    public function testMutatorMethod_ReturnsNewInstance($method, $param)
+    public function testMutatorMethod_ReturnsNewInstance(callable $mutate)
     {
         $original = $this->request();
-        $clone1   = $original->{$method}($param);
-        $clone2   = $original->{$method}($param);
-        $this->assertNotSame($clone1, $clone2);
-        $this->assertEquals($clone1, $clone2);
-        $this->assertNotEquals($original, $clone1);
+        $cloneA   = $mutate($original);
+        $cloneB   = $mutate($original);
+        $this->assertNotSame($cloneA, $cloneB);
+        $this->assertEquals($cloneA, $cloneB);
+        $this->assertNotEquals($original, $cloneA);
     }
 
     public function mutatorMethods(): array
     {
         return [
-            'withRequestTarget' => ['withRequestTarget', '*'],
-            'withUri'           => ['withUri', Uri::fromString('/some/path')],
-            'withMethod'        => ['withMethod', 'POST']
+            'withRequestTarget' => [fn (Request $original) => $original->withRequestTarget('*')],
+            'withUri'           => [fn (Request $original) => $original->withUri(Uri::fromString('/some/path'))],
+            'withMethod'        => [fn (Request $original) => $original->withMethod('POST')]
         ];
     }
 
@@ -135,15 +135,14 @@ class RequestTest extends TestCase
         $this->assertSame('uri-example.com', $request->withUri($uri, false)->getHeaderLine('host'), $fail);
     }
 
-    private function request($method = 'GET', array $headers = [], $uri = null, $target = null): Request
-    {
-        if (!isset($uri)) {
-            $uri = Uri::fromString();
-        }
-        if (!$target) {
-            return new Request($method, $uri, null, $headers, []);
-        }
-
-        return new Request($method, $uri, null, $headers, ['target' => $target]);
+    private function request(
+        string $method = 'GET',
+        array $headers = [],
+        ?UriInterface $uri = null,
+        ?string $target = null
+    ): Request {
+        return $target
+            ? new Request($method, $uri ?? Uri::fromString(), null, $headers, ['target' => $target])
+            : new Request($method, $uri ?? Uri::fromString(), null, $headers, []);
     }
 }
