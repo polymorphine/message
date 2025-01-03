@@ -14,11 +14,11 @@
     "require": {
         "php": "^7.4 || ^8.0",
         "ext-json": "*",
-        "psr/http-message": "^1.0",
-        "psr/http-factory": "^1.0"
+        "psr/http-message": "^1.1",
+        "psr/http-factory": "^1.1"
     },
     "require-dev": {
-        "polymorphine/dev": "0.2.*"
+        "polymorphine/dev": "0.5.*"
     },
     "autoload": {
         "psr-4": {
@@ -33,8 +33,8 @@
     "scripts": {
         "test-cs": [
             "php-cs-fixer --dry-run -v --config=cs-fixer.php.dist --path-mode=intersection fix src tests",
-            "phpcs --extensions=php --standard=vendor/polymorphine/dev/phpcs.xml src",
-            "phpcs --extensions=php --standard=vendor/polymorphine/dev/phpcs.xml --ignore=*/code-samples/* tests"
+            "phpcs --extensions=php --standard=vendor/polymorphine/dev/phpcs.xml --colors src",
+            "phpcs --extensions=php --standard=vendor/polymorphine/dev/phpcs.xml --colors --ignore=*/code-samples/* tests"
         ],
         "test-php": "phpunit",
         "test-skeleton": "polymorphine-skeleton check"
