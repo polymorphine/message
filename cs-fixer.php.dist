@@ -11,4 +11,4 @@
 
 use Polymorphine\Dev\FixerFactory;
 
-return FixerFactory::createFor('Polymorphine/Message', __DIR__);
+return FixerFactory::createFor(__FILE__);
