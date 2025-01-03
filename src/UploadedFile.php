@@ -36,10 +36,10 @@ class UploadedFile implements UploadedFileInterface
      */
     public function __construct(
         StreamInterface $stream,
-        int $size = null,
+        ?int $size = null,
         int $error = UPLOAD_ERR_OK,
-        string $clientFilename = null,
-        string $clientMediaType = null
+        ?string $clientFilename = null,
+        ?string $clientMediaType = null
     ) {
         if (!$stream->isReadable()) {
             throw new InvalidArgumentException('Stream is not readable');
