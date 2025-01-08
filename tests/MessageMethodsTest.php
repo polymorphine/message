@@ -20,12 +20,12 @@ use InvalidArgumentException;
 
 class MessageMethodsTest extends TestCase
 {
-    public function testInstantiatingMessage()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(MessageInterface::class, $this->message());
     }
 
-    public function testSetSupportedProtocolVersion()
+    public function test_SettingSupportedProtocolVersion()
     {
         $this->assertSame('2', $this->message([], '2')->getProtocolVersion());
         $this->assertSame('2.0', $this->message([], '2.0')->getProtocolVersion());
@@ -35,7 +35,7 @@ class MessageMethodsTest extends TestCase
         $this->assertSame('2.0', $this->message()->withProtocolVersion('2.0')->getProtocolVersion());
     }
 
-    public function testProtocolVersionChange_ReturnsNewObject()
+    public function test_ProtocolVersionChange_ReturnsNewObject()
     {
         $original = $this->message();
         $modified = $original->withProtocolVersion('2');
@@ -43,33 +43,33 @@ class MessageMethodsTest extends TestCase
         $this->assertNotSame($modified, $original->withProtocolVersion('2'));
     }
 
-    public function testInstantiateWithUnsupportedProtocolVersion_ThrowsException()
+    public function test_Instantiation_WithUnsupportedProtocolVersion_ThrowsException()
     {
         $this->expectException(InvalidArgumentException::class);
         $this->message([], '0.9');
     }
 
-    public function testInstantiateWithInvalidProtocolVersionType_ThrowsException()
+    public function test_Instantiation_WithInvalidProtocolVersionType_ThrowsException()
     {
         $this->expectException(InvalidArgumentException::class);
         $this->message([], 1.1);
     }
 
-    public function testSetUnsupportedProtocolVersion_ThrowsException()
+    public function test_SettingUnsupportedProtocolVersion_ThrowsException()
     {
         $message = $this->message();
         $this->expectException(InvalidArgumentException::class);
         $message->withProtocolVersion('0.9');
     }
 
-    public function testSetInvalidProtocolVersionType_ThrowsException()
+    public function test_SettingInvalidProtocolVersionType_ThrowsException()
     {
         $message = $this->message();
         $this->expectException(InvalidArgumentException::class);
         $message->withProtocolVersion(1.1);
     }
 
-    public function testGetBody_ReturnsPassedStream()
+    public function test_GetBody_ReturnsPassedStream()
     {
         $body = new FakeStream();
         $this->assertSame($body, $this->message()->withBody($body)->getBody());
@@ -77,7 +77,7 @@ class MessageMethodsTest extends TestCase
         $this->assertSame($body, $message->getBody());
     }
 
-    public function testWithBody_ReturnsNewObject()
+    public function test_WithBody_ReturnsNewObject()
     {
         $original = $this->message();
         $modified = $original->withBody(new FakeStream());
@@ -85,40 +85,40 @@ class MessageMethodsTest extends TestCase
         $this->assertNotSame($original, $modified);
     }
 
-    public function testHasHeaderForUnknownHeaderName_ReturnsFalse()
+    public function test_HasHeader_ForUnknownHeaderName_ReturnsFalse()
     {
         $this->assertFalse($this->message()->hasHeader('test'));
     }
 
-    public function testHasHeaderForKnownHeaderName_ReturnsTrue()
+    public function test_HasHeader_ForKnownHeaderName_ReturnsTrue()
     {
         $this->assertTrue($this->message(['test' => 'header string'])->hasHeader('test'));
     }
 
-    public function testGetHeaderWhenHeaderNorFound_ReturnsEmptyArray()
+    public function test_GetHeader_WhenHeaderNorFound_ReturnsEmptyArray()
     {
         $this->assertSame([], $this->message()->getHeader('not exists'));
     }
 
-    public function testGetHeadersFromMessageWithoutHeaders_ReturnsEmptyArray()
+    public function test_GetHeaders_FromMessageWithoutHeaders_ReturnsEmptyArray()
     {
         $this->assertSame([], $this->message()->getHeaders());
     }
 
-    public function testGetHeaderForValuePassedAsArray_ReturnsSameArray()
+    public function test_GetHeader_ForValuePassedAsArray_ReturnsSameArray()
     {
         $value = ['header value'];
         $this->assertSame($value, $this->message()->withHeader('test', $value)->getHeader('test'));
         $this->assertSame($value, $this->message(['test' => $value])->getHeader('test'));
     }
 
-    public function testGetHeaderLine_ReturnsCommaConcatenatedHeaderString()
+    public function test_GetHeaderLine_ReturnsCommaConcatenatedHeaderString()
     {
         $message = $this->message(['TwoValues' => ['first value', 'second value']]);
         $this->assertSame('first value, second value', $message->getHeaderLine('TwoValues'));
     }
 
-    public function testWithHeader_ReturnsNewObject()
+    public function test_WithHeader_ReturnsNewObject()
     {
         $original = $this->message(['test' => ['old value']]);
         $modified = $original->withHeader('test', ['new value']);
@@ -127,12 +127,12 @@ class MessageMethodsTest extends TestCase
         $this->assertNotSame($original, $modified->withHeader('test', ['old value']));
     }
 
-    public function testGetHeaderForValuePassedAsString_ReturnsArrayWithSameString()
+    public function test_GetHeaderForValuePassedAsString_ReturnsArrayWithSameString()
     {
         $this->assertSame(['string'], $this->message()->withHeader('test', 'string')->getHeader('test'));
     }
 
-    public function testWithAddedHeader_AppendsValueToExistingValues()
+    public function test_WithAddedHeader_AppendsValueToExistingValues()
     {
         $message = $this->message()->withHeader('test', 'first');
         $changed = $message->withAddedHeader('test', 'second');
@@ -140,12 +140,12 @@ class MessageMethodsTest extends TestCase
         $this->assertNotSame($changed, $message->withAddedHeader('test', 'second'));
     }
 
-    public function testWithoutHeader_RemovesHeader()
+    public function test_WithoutHeader_RemovesHeader()
     {
         $this->assertFalse($this->message(['test' => 'value'])->withoutHeader('test')->hasHeader('test'));
     }
 
-    public function testWithoutHeader_ReturnsNewObject()
+    public function test_WithoutHeader_ReturnsNewObject()
     {
         $original = $this->message();
         $modified = $original->withoutHeader('doesntMatter');
@@ -153,68 +153,68 @@ class MessageMethodsTest extends TestCase
         $this->assertNotSame($original, $modified);
     }
 
-    public function testHasHeader_HeaderNameIsNotCaseSensitive()
+    public function test_HasHeader_HeaderNameIsNotCaseSensitive()
     {
         $message = $this->message(['tEsT' => ['string']]);
         $this->assertTrue($message->hasHeader('TeSt'));
     }
 
-    public function testGetHeader_HeaderNameIsNotCaseSensitive()
+    public function test_GetHeader_HeaderNameIsNotCaseSensitive()
     {
         $message = $this->message(['TEST' => ['string']]);
         $this->assertSame(['string'], $message->getHeader('teST'));
     }
 
-    public function testGetHeaderLine_HeaderNameIsNotCaseSensitive()
+    public function test_GetHeaderLine_HeaderNameIsNotCaseSensitive()
     {
         $message = $this->message(['TESTlowercase' => ['first', 'SECOND']]);
         $this->assertSame('first, SECOND', $message->getHeaderLine('testLOWERCASE'));
     }
 
-    public function testWithHeader_HeaderNameIsNotCaseSensitive()
+    public function test_WithHeader_HeaderNameIsNotCaseSensitive()
     {
         $message = $this->message(['TEst' => ['old value']]);
         $this->assertSame(['new value'], $message->withHeader('teST', ['new value'])->getHeader('tESt'));
     }
 
-    public function testWithAddedHeader_HeaderNameIsNotCaseSensitive()
+    public function test_WithAddedHeader_HeaderNameIsNotCaseSensitive()
     {
         $message = $this->message(['TEst' => ['old value']]);
         $this->assertSame(['old value', 'added value'], $message->withAddedHeader('teST', ['added value'])->getHeader('tESt'));
     }
 
-    public function testWithAddedHeader_OriginalKeysArePreserved()
+    public function test_WithAddedHeader_OriginalKeysArePreserved()
     {
         $message = $this->message(['TEst' => ['old value']]);
         $this->assertSame(['TEst' => ['old value', 'new value']], $message->withAddedHeader('teST', ['new value'])->getHeaders());
     }
 
-    public function testWithoutHeader_HeaderNamesIsNotCaseSensitive()
+    public function test_WithoutHeader_HeaderNamesIsNotCaseSensitive()
     {
         $message = $this->message(['garbage' => ['one', 'two'], 'useful' => 'three']);
         $this->assertFalse($message->withoutHeader('GARBAGE')->hasHeader('garbage'));
         $this->assertSame(['useful' => ['three']], $message->withoutHeader('GARBAGE')->getHeaders());
     }
 
-    public function testGetHeaders_ReturnsHeaderNamesWithOriginalCase()
+    public function test_GetHeaders_ReturnsHeaderNamesWithOriginalCase()
     {
         $this->assertSame(['testCASE' => ['value']], $this->message(['testCASE' => ['value']])->getHeaders());
         $this->assertSame(['testCASE' => ['value']], $this->message()->withHeader('testCASE', 'value')->getHeaders());
     }
 
-    public function testWithHeaderChangeOriginalCaseOnOverwrite()
+    public function test_WithHeader_ChangeOriginalCaseOnOverwrite()
     {
         $message = $this->message(['testCASE' => ['old value']])->withHeader('TESTcase', ['new value']);
         $this->assertSame(['TESTcase' => ['new value']], $message->getHeaders());
     }
 
-    public function testWithAddedHeaderDoesNotChangeOriginalHeaderCase()
+    public function test_WithAddedHeader_DoesNotChangeOriginalHeaderCase()
     {
         $message = $this->message(['testCASE' => ['first value']])->withAddedHeader('TESTcase', ['added value']);
         $this->assertSame(['testCASE' => ['first value', 'added value']], $message->getHeaders());
     }
 
-    public function testGetHeaders_ReturnsHeaderValuesIgnoringPassedArrayKeys()
+    public function test_GetHeaders_ReturnsHeaderValuesIgnoringPassedArrayKeys()
     {
         $message = $this->message(['test' => ['one' => 'first']]);
         $this->assertSame(['test' => ['first']], $message->getHeaders());
@@ -227,7 +227,7 @@ class MessageMethodsTest extends TestCase
      *
      * @param $name
      */
-    public function testInstantiateWithInvalidHeaderName_ThrowsException($name)
+    public function test_Instantiation_WithInvalidHeaderName_ThrowsException($name)
     {
         $this->expectException(InvalidArgumentException::class);
         $this->message([$name => 'valid value']);
@@ -238,7 +238,7 @@ class MessageMethodsTest extends TestCase
      *
      * @param $name
      */
-    public function testWithHeaderSettingInvalidHeaderName_ThrowsException($name)
+    public function test_WithHeader_SettingInvalidHeaderName_ThrowsException($name)
     {
         $this->expectException(InvalidArgumentException::class);
         $this->message()->withHeader($name, 'valid value');
@@ -249,7 +249,7 @@ class MessageMethodsTest extends TestCase
      *
      * @param $name
      */
-    public function testWithAddedHeaderSettingInvalidHeaderName_ThrowsException($name)
+    public function test_WithAddedHeader_SettingInvalidHeaderName_ThrowsException($name)
     {
         $this->expectException(InvalidArgumentException::class);
         $this->message()->withAddedHeader($name, 'valid value');
@@ -269,7 +269,7 @@ class MessageMethodsTest extends TestCase
      *
      * @param $header
      */
-    public function testInstantiateWithInvalidHeaderValues_ThrowsException($header)
+    public function test_Instantiation_WithInvalidHeaderValues_ThrowsException($header)
     {
         $this->expectException(InvalidArgumentException::class);
         $this->message(['test' => $header]);

@@ -19,12 +19,12 @@ use RuntimeException;
 
 class NonSAPIUploadedFileTest extends TestCase
 {
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(NonSAPIUploadedFile::class, new NonSAPIUploadedFile(new FakeStream()));
     }
 
-    public function testFileIsMoved()
+    public function test_FileIsMoved()
     {
         $source = tempnam(sys_get_temp_dir(), 'test');
         $target = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'test.txt';
@@ -40,7 +40,7 @@ class NonSAPIUploadedFileTest extends TestCase
         unlink($target);
     }
 
-    public function testMoveToNotExistingPath_ThrowsException()
+    public function test_MoveToNotExistingPath_ThrowsException()
     {
         $file      = new NonSAPIUploadedFile(new FakeStream());
         $targetDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . '/notExists';

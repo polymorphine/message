@@ -37,42 +37,38 @@ class StreamTest extends TestCase
         if (file_exists($this->testFilename)) { unlink($this->testFilename); }
     }
 
-    public function testInstantiateWithStreamName()
+    public function test_Instantiation_WithStreamName()
     {
         $this->assertInstanceOf(StreamInterface::class, Stream::fromResourceUri('php://memory', 'a+b'));
         $this->assertInstanceOf(StreamInterface::class, Stream::fromResourceUri('php://memory', 'w'));
     }
 
-    public function testInstantiateWithStreamResource()
+    public function test_Instantiation_WithStreamResource()
     {
         $this->assertInstanceOf(StreamInterface::class, new Stream(fopen('php://input', 'r+b')));
     }
 
-    public function testNonResourceConstructorArgument_ThrowsException()
+    public function test_NonResourceConstructorArgument_ThrowsException()
     {
         $this->expectException(InvalidArgumentException::class);
         new Stream('http://example.com');
     }
 
-    public function testNonStreamResourceConstructorArgument_ThrowsException()
+    public function test_NonStreamResourceConstructorArgument_ThrowsException()
     {
         self::$overrideFunctions = true;
         $this->expectException(InvalidArgumentException::class);
         $this->stream();
     }
 
-    public function testInvalidStreamMode_ThrowsException()
+    public function test_InvalidStreamMode_ThrowsException()
     {
         $this->expectException(InvalidArgumentException::class);
         Stream::fromResourceUri('someFile.txt', 'invalid');
     }
 
-    /**
-     * @dataProvider validModes
-     *
-     * @param $mode
-     */
-    public function testInvalidStreamReference_ThrowsException($mode)
+    /** @dataProvider validModes */
+    public function test_InvalidStreamReference_ThrowsException(string $mode)
     {
         $this->expectException(RuntimeException::class);
         Stream::fromResourceUri('php://someFile.txt', $mode);
@@ -83,13 +79,8 @@ class StreamTest extends TestCase
         return [['w+b'], ['wb+'], ['xt+'], ['r+t'], ['cb+']];
     }
 
-    /**
-     * @dataProvider metaKeys
-     *
-     * @param $key
-     * @param $type
-     */
-    public function testGetMetaData_ReturnCorrectValueTypes($key, $type)
+    /** @dataProvider metaKeys */
+    public function test_GetMetaData_ReturnCorrectValueTypes(string $key, string $type)
     {
         $meta = $this->stream('php://memory')->getMetadata();
         $this->assertSame($type, gettype($meta[$key]));
@@ -112,12 +103,12 @@ class StreamTest extends TestCase
         ];
     }
 
-    public function testGetMetadataReturnsNullIfNoDataExistsForKey()
+    public function test_GetMetadata_ForNotExistingKey_ReturnsNull()
     {
         $this->assertNull($this->stream()->getMetadata('no_such_key'));
     }
 
-    public function testDetachedStreamProperties()
+    public function test_DetachedStreamProperties()
     {
         $stream = $this->stream();
         fclose($stream->detach());
@@ -128,13 +119,13 @@ class StreamTest extends TestCase
         $this->assertNull($stream->getMetadata('uri'));
     }
 
-    public function testTell_ReturnsPointerPosition()
+    public function test_Tell_ReturnsPointerPosition()
     {
         $this->assertSame(0, $this->stream(null, 'r')->tell());
         $this->assertSame(5, $this->streamWithPredefinedConditions('Hello World!', 5)->tell());
     }
 
-    public function testTellDetachedStream_ThrowsException()
+    public function test_Tell_DetachedStream_ThrowsException()
     {
         $stream = $this->stream();
         fclose($stream->detach());
@@ -142,7 +133,7 @@ class StreamTest extends TestCase
         $stream->tell();
     }
 
-    public function testTellError_ThrowsException()
+    public function test_Tell_OnError_ThrowsException()
     {
         $stream = $this->stream();
 
@@ -151,7 +142,7 @@ class StreamTest extends TestCase
         $stream->tell();
     }
 
-    public function testSeekMovesPointerPosition()
+    public function test_Seek_MovesPointerPosition()
     {
         $stream = $this->streamWithPredefinedConditions('Hello World!', 0);
         $this->assertSame(0, $stream->tell());
@@ -159,7 +150,7 @@ class StreamTest extends TestCase
         $this->assertSame(5, $stream->tell());
     }
 
-    public function testSeekWhenceBehavior()
+    public function test_Seek_WhenceBehavior()
     {
         $stream = $this->streamWithPredefinedConditions('Hello World!', 3);
         $stream->seek(6);
@@ -174,7 +165,7 @@ class StreamTest extends TestCase
         $this->assertSame(9, $stream->tell(), 'SEEK_END offset resolves into position relative to end of stream');
     }
 
-    public function testSeekNotSeekableStream_ThrowsException()
+    public function test_Seek_NotSeekableStream_ThrowsException()
     {
         $stream = $this->stream('php://output', 'a');
         $this->assertFalse($stream->isSeekable());
@@ -182,7 +173,7 @@ class StreamTest extends TestCase
         $stream->seek(1);
     }
 
-    public function testSeekDetachedStream_ThrowsException()
+    public function test_Seek_DetachedStream_ThrowsException()
     {
         $stream = $this->stream();
         fclose($stream->detach());
@@ -190,21 +181,21 @@ class StreamTest extends TestCase
         $stream->seek(1);
     }
 
-    public function testSeekError_ThrowsException()
+    public function test_Seek_OnError_ThrowsException()
     {
         $stream = $this->stream();
         $this->expectException(RuntimeException::class);
         $stream->seek(-1);
     }
 
-    public function testRewindMovesPointerToBeginningOfTheStream()
+    public function test_Rewind_MovesPointerToBeginningOfTheStream()
     {
         $stream = $this->streamWithPredefinedConditions('Hello World!', 4);
         $stream->rewind();
         $this->assertSame(0, $stream->tell());
     }
 
-    public function testRewindNotSeekableStream_ThrowsException()
+    public function test_Rewind_NotSeekableStream_ThrowsException()
     {
         $stream = $this->stream('php://output', 'a');
         $this->assertFalse($stream->isSeekable());
@@ -212,7 +203,7 @@ class StreamTest extends TestCase
         $stream->rewind();
     }
 
-    public function testRewindDetachedStream_ThrowsException()
+    public function test_Rewind_DetachedStream_ThrowsException()
     {
         $stream = $this->stream();
         fclose($stream->detach());
@@ -220,27 +211,27 @@ class StreamTest extends TestCase
         $stream->rewind();
     }
 
-    public function testGetSize_ReturnsSizeOfStream()
+    public function test_GetSize_ReturnsSizeOfStream()
     {
         $this->assertSame(12, $this->streamWithPredefinedConditions('Hello World!', 0)->getSize());
         $this->assertSame(0, $this->stream(null, 'w+')->getSize());
     }
 
-    public function testGetSizeOnDetachedResource_ReturnsNull()
+    public function test_GetSize_OnDetachedResource_ReturnsNull()
     {
         $stream = $this->stream();
         fclose($stream->detach());
         $this->assertNull($stream->getSize());
     }
 
-    public function testReadGetsDataFromStream()
+    public function test_Read_GetsDataFromStream()
     {
         $string = 'Hello World!';
         $stream = $this->streamWithPredefinedConditions($string, 6);
         $this->assertSame('World', $stream->read(5));
     }
 
-    public function testReadUnreadableStream_ThrowsException()
+    public function test_Read_UnreadableStream_ThrowsException()
     {
         $stream = $this->fileStream('w');
         $this->assertFalse($stream->isReadable());
@@ -248,7 +239,7 @@ class StreamTest extends TestCase
         $stream->read(1);
     }
 
-    public function testReadDetachedStream_ThrowsException()
+    public function test_Read_DetachedStream_ThrowsException()
     {
         $stream = $this->stream();
         fclose($stream->detach());
@@ -256,7 +247,7 @@ class StreamTest extends TestCase
         $stream->read(1);
     }
 
-    public function testReadError_ThrowsException()
+    public function test_ReadError_ThrowsException()
     {
         $stream = $this->stream(null, 'w+b');
 
@@ -265,14 +256,14 @@ class StreamTest extends TestCase
         $stream->read(1);
     }
 
-    public function testGetContents_ReturnsRemainingStreamContents()
+    public function test_GetContents_ReturnsRemainingStreamContents()
     {
         $string = 'Hello World!';
         $stream = $this->streamWithPredefinedConditions($string, 6);
         $this->assertSame('World!', $stream->getContents());
     }
 
-    public function testGetContentsOnUnreadableStream_ThrowsException()
+    public function test_GetContents_OnUnreadableStream_ThrowsException()
     {
         $stream = $this->fileStream('w');
         $this->assertFalse($stream->isReadable());
@@ -280,7 +271,7 @@ class StreamTest extends TestCase
         $stream->getContents();
     }
 
-    public function testGetContentsFromDetachedStream_ThrowsException()
+    public function test_GetContents_FromDetachedStream_ThrowsException()
     {
         $stream = $this->stream();
         fclose($stream->detach());
@@ -288,7 +279,7 @@ class StreamTest extends TestCase
         $stream->getContents();
     }
 
-    public function testGetContentsError_ThrowsException()
+    public function test_GetContentsError_ThrowsException()
     {
         $stream = $this->streamWithPredefinedConditions('Hello World!', 0);
 
@@ -297,7 +288,7 @@ class StreamTest extends TestCase
         $stream->getContents();
     }
 
-    public function testEofOnRead()
+    public function test_Eof_OnRead()
     {
         $stream = $this->streamWithPredefinedConditions('hello world!', 11);
         $stream->read(1);
@@ -310,14 +301,14 @@ class StreamTest extends TestCase
         $this->assertTrue($stream->eof());
     }
 
-    public function testEofOnDetachedStream_ReturnsTrue()
+    public function test_Eof_OnDetachedStream_ReturnsTrue()
     {
         $stream = $this->stream();
         $stream->detach();
         $this->assertTrue($stream->eof());
     }
 
-    public function testWriteSendsDataToStream()
+    public function test_Write_SendsDataToStream()
     {
         $stream = $this->stream(null, 'w+b');
         $data   = 'Hello World!';
@@ -325,7 +316,7 @@ class StreamTest extends TestCase
         $this->assertSame($data, (string) $stream);
     }
 
-    public function testWriteNotWritableStream_ThrowsException()
+    public function test_Write_NotWritableStream_ThrowsException()
     {
         $stream = $this->stream();
         $this->assertFalse($stream->isWritable());
@@ -333,7 +324,7 @@ class StreamTest extends TestCase
         $stream->write('hello world!');
     }
 
-    public function testWriteIntoDetachedStream_ThrowsException()
+    public function test_Write_IntoDetachedStream_ThrowsException()
     {
         $stream = $this->stream();
         fclose($stream->detach());
@@ -341,7 +332,7 @@ class StreamTest extends TestCase
         $stream->write('hello world!');
     }
 
-    public function testErrorOnWrite_ThrowsException()
+    public function test_WriteError_ThrowsException()
     {
         $stream = $this->stream(null, 'w+b');
 
@@ -350,7 +341,7 @@ class StreamTest extends TestCase
         $stream->write('Hello World!');
     }
 
-    public function testWrittenDataIsEqualToReadData()
+    public function test_WrittenDataIsEqualToReadData()
     {
         $string = 'Hello World!';
         $stream = $this->stream(null, 'w+');
@@ -362,27 +353,27 @@ class StreamTest extends TestCase
         $this->assertSame($string, (string) $stream);
     }
 
-    public function testToString_ReturnsFullStreamContents()
+    public function test_ToString_ReturnsFullStreamContents()
     {
         $string = 'Hello World!';
         $stream = $this->streamWithPredefinedConditions($string, 6);
         $this->assertSame($string, (string) $stream);
     }
 
-    public function testToStringOnUnreadableStream_ReturnsEmptyString()
+    public function test_ToString_OnUnreadableStream_ReturnsEmptyString()
     {
         $stream = $this->fileStream('a', 'Hello World');
         $this->assertSame('', (string) $stream);
     }
 
-    public function testToStringOnNotSeekableStream_ReturnsEmptyString()
+    public function test_ToString_OnNotSeekableStream_ReturnsEmptyString()
     {
         $stream = $this->stream('php://output', 'a');
         $this->assertFalse($stream->isSeekable());
         $this->assertSame('', (string) $stream);
     }
 
-    public function testWhenErrorOccurs_ToStringReturnsEmptyString()
+    public function test_ToString_WhenErrorOccurs_ReturnsEmptyString()
     {
         $stream = $this->streamWithPredefinedConditions('Hello World!', 6);
 
@@ -390,7 +381,7 @@ class StreamTest extends TestCase
         $this->assertSame('', (string) $stream);
     }
 
-    public function testInstantiateWithStringBody()
+    public function test_Instantiation_WithStringBody()
     {
         $stream = Stream::fromBodyString('Hello World!');
         $this->assertInstanceOf(StreamInterface::class, $stream);

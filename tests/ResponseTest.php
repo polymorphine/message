@@ -21,12 +21,12 @@ use InvalidArgumentException;
 
 class ResponseTest extends TestCase
 {
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(ResponseInterface::class, $this->response());
     }
 
-    public function testStatusCodeIsReturned()
+    public function test_StatusCodeIsReturned()
     {
         $fail = 'Status code should be set by constructor';
         $this->assertSame(201, $this->response(201)->getStatusCode(), $fail);
@@ -35,7 +35,7 @@ class ResponseTest extends TestCase
         $this->assertSame(300, $this->response()->withStatus(300)->getStatusCode(), $fail);
     }
 
-    public function testNewStatusCode_ReturnsNewObject()
+    public function test_NewStatusCode_ReturnsNewObject()
     {
         $original = $this->response(404);
         $clone    = $original->withStatus(201);
@@ -43,7 +43,7 @@ class ResponseTest extends TestCase
         $this->assertNotSame($original, $clone);
     }
 
-    public function testReasonPhraseResolve()
+    public function test_ReasonPhraseResolve()
     {
         $fail = 'Default status code (200) should resolve into default "OK" reason phrase if not specified';
         $this->assertSame('OK', $this->response()->getReasonPhrase(), $fail);
@@ -69,7 +69,7 @@ class ResponseTest extends TestCase
         $this->assertSame($reason, $this->response(201)->withStatus(201, $reason)->getReasonPhrase(), $fail);
     }
 
-    public function testConstructorWithInvalidStatusCode_ThrowsException()
+    public function test_ConstructorWithInvalidStatusCode_ThrowsException()
     {
         $this->expectException(InvalidArgumentException::class);
         $this->response(900);
@@ -80,7 +80,7 @@ class ResponseTest extends TestCase
      *
      * @param $code
      */
-    public function testWithStatusWithInvalidStatusCode_ThrowsException($code)
+    public function test_WithStatusWithInvalidStatusCode_ThrowsException($code)
     {
         $this->expectException(InvalidArgumentException::class);
         $this->response()->withStatus($code);
@@ -102,7 +102,7 @@ class ResponseTest extends TestCase
      *
      * @param $reason
      */
-    public function testConstructorWithInvalidReasonPhrase_ThrowsException($reason)
+    public function test_ConstructorWithInvalidReasonPhrase_ThrowsException($reason)
     {
         $this->expectException(InvalidArgumentException::class);
         $this->response(200, $reason);
@@ -113,7 +113,7 @@ class ResponseTest extends TestCase
      *
      * @param $reason
      */
-    public function testWithStatusWithInvalidReasonPhrase_ThrowsException($reason)
+    public function test_WithStatusWithInvalidReasonPhrase_ThrowsException($reason)
     {
         $this->expectException(InvalidArgumentException::class);
         $this->response()->withStatus(200, $reason);
@@ -128,7 +128,7 @@ class ResponseTest extends TestCase
         ];
     }
 
-    public function testNamedConstructors()
+    public function test_NamedConstructors()
     {
         $this->equivalentConstructs(
             new Response(303, null, ['Location' => '/foo/bar/234']),
@@ -167,7 +167,7 @@ class ResponseTest extends TestCase
         );
     }
 
-    public function testRedirectWithInvalidStatusCode_ThrowsException()
+    public function test_RedirectWithInvalidStatusCode_ThrowsException()
     {
         $this->expectException(InvalidArgumentException::class);
         Response::redirect('/foo/bar', 200);

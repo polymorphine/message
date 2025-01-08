@@ -21,7 +21,7 @@ use InvalidArgumentException;
 
 class RequestTest extends TestCase
 {
-    public function testRequestInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(RequestInterface::class, $this->request());
     }
@@ -31,7 +31,7 @@ class RequestTest extends TestCase
      *
      * @dataProvider mutatorMethods
      */
-    public function testMutatorMethod_ReturnsNewInstance(callable $mutate)
+    public function test_MutatorMethods_ReturnNewInstance(callable $mutate)
     {
         $original = $this->request();
         $cloneA   = $mutate($original);
@@ -50,32 +50,32 @@ class RequestTest extends TestCase
         ];
     }
 
-    public function testGetMethod()
+    public function test_GetMethod_ReturnsInstanceMethod()
     {
         $this->assertSame('POST', $this->request('POST')->getMethod());
         $this->assertSame('DELETE', $this->request()->withMethod('DELETE')->getMethod());
     }
 
-    public function testGetUri()
+    public function test_GetUri_ReturnsInstanceUri()
     {
         $uri = Uri::fromString();
         $this->assertSame($uri, $this->request('GET', [], $uri)->getUri());
         $this->assertSame($uri, $this->request()->withUri($uri)->getUri());
     }
 
-    public function testWithMethodForInvalidMethod_ThrowsException()
+    public function test_WithMethodForInvalidMethod_ThrowsException()
     {
         $this->expectException(InvalidArgumentException::class);
         $this->request()->withMethod('SPACE INSIDE');
     }
 
-    public function testConstructorWithInvalidMethod_ThrowsException()
+    public function test_ConstructorWithInvalidMethod_ThrowsException()
     {
         $this->expectException(InvalidArgumentException::class);
         $this->request('SPACE INSIDE');
     }
 
-    public function testResolvingRequestTarget()
+    public function test_ResolvingRequestTarget()
     {
         $fail = 'Empty URIs path+query should produce root path for INVALID target';
         $this->assertSame('/', $this->request('GET', [], null, '//malformed:uri')->getRequestTarget(), $fail);
@@ -102,7 +102,7 @@ class RequestTest extends TestCase
         $this->assertSame('/fizz/buzz', $request->getRequestTarget(), $fail);
     }
 
-    public function testConstructorResolvesHostHeaderFromUri()
+    public function test_ConstructorResolvesHostHeaderFromUri()
     {
         $fail    = 'Constructor should not create host header from URI with no host';
         $request = $this->request();
@@ -117,7 +117,7 @@ class RequestTest extends TestCase
         $this->assertSame('foo.com', $request->getHeaderLine('host'), $fail);
     }
 
-    public function testWithUriResolvesHostHeader()
+    public function test_WithUri_ResolvesHostHeader()
     {
         $fail    = 'WithUri() should not create host header from URI with no host';
         $request = $this->request()->withUri(Uri::fromString('path/only'));

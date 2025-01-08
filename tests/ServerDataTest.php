@@ -32,12 +32,12 @@ class ServerDataTest extends TestCase
         self::$nativeCallResult = null;
     }
 
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(ServerData::class, $this->serverData());
     }
 
-    public function testBasicIntegration()
+    public function test_BasicIntegration()
     {
         $data    = $this->basicData();
         $request = ServerRequest::fromServerData($this->serverData($data));
@@ -50,7 +50,7 @@ class ServerDataTest extends TestCase
         $this->assertSame('1.0', $request->getProtocolVersion());
     }
 
-    public function testOverridingSuperglobals()
+    public function test_OverridingSuperglobals()
     {
         $_POST   = ['name' => 'overwritten value', 'original' => 'original value'];
         $_GET    = ['name' => 'overwritten value'];
@@ -72,7 +72,7 @@ class ServerDataTest extends TestCase
      * @param $serverKey
      * @param $headerName
      */
-    public function testNormalizedHeaderNamesFromServerArray($serverKey, $headerName)
+    public function test_NormalizedHeaderNamesFromServerArray($serverKey, $headerName)
     {
         $data = $this->serverData(['server' => [$serverKey => 'value']]);
         $this->assertTrue(ServerRequest::fromServerData($data)->hasHeader($headerName));
@@ -88,7 +88,7 @@ class ServerDataTest extends TestCase
         ];
     }
 
-    public function testResolvingAuthorizationHeader()
+    public function test_ResolvingAuthorizationHeader()
     {
         $this->assertFalse(ServerRequest::fromServerData($this->serverData())->hasHeader('Authorization'));
         $data['server'] = ['HTTP_AUTHORIZATION' => 'value'];
@@ -101,7 +101,7 @@ class ServerDataTest extends TestCase
         $this->assertFalse(ServerRequest::fromServerData($this->serverData())->hasHeader('Authorization'));
     }
 
-    public function testUploadedFileSuperGlobalParameterStructure()
+    public function test_UploadedFilesSuperGlobalParameterStructure()
     {
         $serverData = $this->serverData(['files' => ['test' => $this->fileData('avatar.png')]]);
         $request    = ServerRequest::fromServerData($serverData);
@@ -109,7 +109,7 @@ class ServerDataTest extends TestCase
         $this->assertInstanceOf(UploadedFileInterface::class, $serverData->uploadedFiles()['test']);
     }
 
-    public function testUploadedFileFileMultipleFileSuperGlobalParameterStructure()
+    public function test_MultipleUploadedFilesSuperGlobalParameterStructure()
     {
         $files['single'] = $this->fileData('avatar.png');
         $nested = [];
@@ -127,7 +127,7 @@ class ServerDataTest extends TestCase
         $this->assertInstanceOf(UploadedFile::class, $uploadedFiles['multi']['multi-nested']['sub-nested']);
     }
 
-    public function testUploadedFileInstancesInNestedStructureParameter()
+    public function test_UploadedFileInstancesInNestedStructureParameter()
     {
         $files = [
             'first'  => new FakeUploadedFile(),
@@ -137,7 +137,7 @@ class ServerDataTest extends TestCase
         $this->assertSame($files, $request->getUploadedFiles());
     }
 
-    public function testSingleUploadedFileStructure()
+    public function test_SingleUploadedFileStructure()
     {
         $files['test'] = $this->fileData('test.txt');
         $request = ServerRequest::fromServerData($this->serverData(['files' => $files]));
@@ -148,7 +148,7 @@ class ServerDataTest extends TestCase
         $this->assertSame('test.txt', $file['test']->getClientFilename());
     }
 
-    public function testMultipleUploadedFileStructure()
+    public function test_MultipleUploadedFileStructure()
     {
         $files['test'] = $this->fileData(['testA.txt', 'testB.txt']);
         $request = ServerRequest::fromServerData($this->serverData(['files' => $files]));
@@ -159,7 +159,7 @@ class ServerDataTest extends TestCase
         $this->assertSame('testB.txt', $file['test'][1]->getClientFilename());
     }
 
-    public function testMixedStructureUploadedFiles()
+    public function test_MixedStructureUploadedFiles()
     {
         $files = [
             'test'      => $this->fileData(['testA.txt', 'testB.txt']),
@@ -176,7 +176,7 @@ class ServerDataTest extends TestCase
         $this->assertSame('testD.txt', $file['singleD']->getClientFilename());
     }
 
-    public function testInvalidFileDataStructure_ThrowsException()
+    public function test_InvalidFileDataStructure_ThrowsException()
     {
         $this->expectException(InvalidArgumentException::class);
         $this->serverData(['files' => ['field' => 'filename.txt']]);

@@ -20,12 +20,12 @@ use InvalidArgumentException;
 
 class ServerRequestTest extends TestCase
 {
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(ServerRequestInterface::class, $this->request());
     }
 
-    public function testGetServerParams_ReturnsInstanceServerParamsArray()
+    public function test_GetServerParams_ReturnsInstanceServerParamsArray()
     {
         $params = ['key' => 'value'];
         $this->assertSame($params, $this->request(['server' => $params])->getServerParams());
@@ -36,7 +36,7 @@ class ServerRequestTest extends TestCase
      *
      * @dataProvider instanceProperties
      */
-    public function testGetters_ReturnConstructorProperties(string $name, array $value, callable $getValue)
+    public function test_Getters_ReturnConstructorProperties(string $name, array $value, callable $getValue)
     {
         $this->assertSame($value, $getValue($this->request([$name => $value])));
     }
@@ -51,7 +51,7 @@ class ServerRequestTest extends TestCase
         ];
     }
 
-    public function testGetAttribute_ReturnsSpecifiedAttributeValue()
+    public function test_GetAttribute_WhenAttributeExists_ReturnsAttributeValue()
     {
         $request = $this->request()->withAttribute('name', 'value');
         $this->assertSame('value', $request->getAttribute('name', 'default'));
@@ -59,7 +59,7 @@ class ServerRequestTest extends TestCase
         $this->assertSame(null, $request->getAttribute('name', 'default'));
     }
 
-    public function testGetAttribute_ReturnsDefaultValueIfAttributeNotPresent()
+    public function test_GetAttribute_WhenAttributeNotPresent_ReturnsDefaultValue()
     {
         $request = $this->request(['attributes' => ['unknownName' => 'value']]);
         $this->assertSame('default', $request->getAttribute('name', 'default'));
@@ -71,7 +71,7 @@ class ServerRequestTest extends TestCase
      *
      * @dataProvider mutatorMethods
      */
-    public function testMutatorMethods_ReturnNewInstance(callable $mutate)
+    public function test_MutatorMethods_ReturnNewInstance(callable $mutate)
     {
         $original = $this->request();
         $derivedA = $mutate($original);
@@ -90,7 +90,7 @@ class ServerRequestTest extends TestCase
         ];
     }
 
-    public function testAttributeMutation_ReturnsNewInstance()
+    public function test_AttributeMutation_ReturnsNewInstance()
     {
         $original = $this->request();
         [$name, $value] = ['name', 'value'];
@@ -106,7 +106,7 @@ class ServerRequestTest extends TestCase
         $this->assertNotSame($derivedA, $derivedB);
     }
 
-    public function testGetParsedBodyForRequestWithoutBody_returnsNull()
+    public function test_GetParsedBody_ForRequestWithoutBody_returnsNull()
     {
         $this->assertNull($this->request()->getParsedBody());
         $request = $this->request(['body' => ['key' => 'value']]);
@@ -114,14 +114,14 @@ class ServerRequestTest extends TestCase
         $this->assertNull($request->withParsedBody([])->getParsedBody());
     }
 
-    public function testInvalidArgumentForWithParsedBodyMethod_ThrowsException()
+    public function test_WithParsedBody_CalledWithInvalidArgument_ThrowsException()
     {
         $request = $this->request();
         $this->expectException(InvalidArgumentException::class);
         $request->withParsedBody(400);
     }
 
-    public function testUploadedFilesInvalidStructure_ThrowsInvalidArgumentException()
+    public function test_UploadedFiles_WithInvalidStructure_ThrowsInvalidArgumentException()
     {
         $this->expectException(InvalidArgumentException::class);
         $files = [
@@ -131,7 +131,7 @@ class ServerRequestTest extends TestCase
         $this->request(['files' => $files]);
     }
 
-    public function testUploadedFileNestedStructureIsValid()
+    public function test_UploadedFile_WithNestedStructure()
     {
         $files = [
             'first' => new Doubles\FakeUploadedFile(),
