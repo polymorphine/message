@@ -132,7 +132,7 @@ class RequestTest extends TestCase
         $fail    = 'WithUri($uri, true) should not overwrite host header';
         $this->assertSame('header-example.com', $request->withUri($uri, true)->getHeaderLine('host'), $fail);
         $fail = 'WithUri($uri, [false]) should overwrite host header';
-        $this->assertSame('uri-example.com', $request->withUri($uri, false)->getHeaderLine('host'), $fail);
+        $this->assertSame('uri-example.com', $request->withUri($uri)->getHeaderLine('host'), $fail);
     }
 
     private function request(
@@ -141,8 +141,6 @@ class RequestTest extends TestCase
         ?UriInterface $uri = null,
         ?string $target = null
     ): Request {
-        return $target
-            ? new Request($method, $uri ?? Uri::fromString(), null, $headers, ['target' => $target])
-            : new Request($method, $uri ?? Uri::fromString(), null, $headers, []);
+        return new Request($method, $uri ?? Uri::fromString(), null, $headers, $target ? ['target' => $target] : []);
     }
 }

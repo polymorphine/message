@@ -28,7 +28,7 @@ class UploadedFileTest extends TestCase
     private ?string $tempFile  = null;
     private ?string $movedFile = null;
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         if (is_file($this->tempFile ?? '')) { unlink($this->tempFile); }
         if (is_file($this->movedFile ?? '')) { unlink($this->movedFile); }
@@ -152,8 +152,8 @@ class UploadedFileTest extends TestCase
         ]);
     }
 
-    private function targetPath($name = 'test.txt'): string
+    private function targetPath(): string
     {
-        return $this->movedFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $name;
+        return $this->movedFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'test.txt';
     }
 }

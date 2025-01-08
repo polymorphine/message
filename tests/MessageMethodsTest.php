@@ -280,10 +280,8 @@ class MessageMethodsTest extends TestCase
 
     private function message(array $headers = [], $version = null): MessageMethodsClass
     {
-        if (!$version) {
-            return new MessageMethodsClass(new FakeStream(), $headers);
-        }
-
-        return new MessageMethodsClass(new FakeStream(), $headers, $version);
+        return $version
+            ? new MessageMethodsClass(new FakeStream(), $headers, $version)
+            : new MessageMethodsClass(new FakeStream(), $headers);
     }
 }

@@ -106,15 +106,14 @@ class ServerDataTest extends TestCase
 
     public function test_MultipleUploadedFilesSuperGlobalParameterStructure()
     {
-        $files['single'] = $this->fileData('avatar.png');
-        $nested = [];
-        foreach ($files['single'] as $name => $value) {
-            $nested[$name] = [0 => $value, 'nested' => $value, 'multi-nested' => [0 => $value, 'sub-nested' => $value]];
-        }
-        $files['multi'] = $nested;
+        $fileArray = $this->fileData('avatar.png');
+        $structure = fn ($value) => [0 => $value, 'nested' => $value, 'multi-nested' => [0 => $value, 'sub-nested' => $value]];
+        $serverData = $this->serverData(['files' => [
+            'single' => $fileArray,
+            'multi'  => array_map($structure, $fileArray)
+        ]]);
 
-        $uploadedFiles = $this->serverData(['files' => $files])->uploadedFiles();
-
+        $uploadedFiles = $serverData->uploadedFiles();
         $this->assertInstanceOf(UploadedFile::class, $uploadedFiles['single']);
         $this->assertInstanceOf(UploadedFile::class, $uploadedFiles['multi'][0]);
         $this->assertInstanceOf(UploadedFile::class, $uploadedFiles['multi']['nested']);

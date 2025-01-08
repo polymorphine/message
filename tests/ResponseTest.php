@@ -130,30 +130,30 @@ class ResponseTest extends TestCase
 
     public function test_NamedConstructors()
     {
-        $this->equivalentConstructs(
+        $this->assertEqualResponces(
             new Response(303, null, ['Location' => '/foo/bar/234']),
             Response::redirect(Uri::fromString('/foo/bar/234'))
         );
-        $this->equivalentConstructs(
+        $this->assertEqualResponces(
             new Response(301, null, ['Location' => '/foo/bar/baz']),
             Response::redirect('/foo/bar/baz', 301)
         );
-        $this->equivalentConstructs(new Response(400), Response::badRequest());
-        $this->equivalentConstructs(new Response(401), Response::unauthorized());
-        $this->equivalentConstructs(new Response(404), Response::notFound());
-        $this->equivalentConstructs(
+        $this->assertEqualResponces(new Response(400), Response::badRequest());
+        $this->assertEqualResponces(new Response(401), Response::unauthorized());
+        $this->assertEqualResponces(new Response(404), Response::notFound());
+        $this->assertEqualResponces(
             new Response(404, new FakeStream('Not Found. Sorry.')),
             Response::notFound(new FakeStream('Not Found. Sorry.'))
         );
-        $this->equivalentConstructs(
+        $this->assertEqualResponces(
             new Response(200, new FakeStream('text'), ['Content-Type' => 'text/plain']),
             Response::text('text')
         );
-        $this->equivalentConstructs(
+        $this->assertEqualResponces(
             new Response(200, new FakeStream('html'), ['Content-Type' => 'text/html']),
             Response::html('html')
         );
-        $this->equivalentConstructs(
+        $this->assertEqualResponces(
             new Response(200, new FakeStream('xml'), ['Content-Type' => 'application/xml']),
             Response::xml('xml')
         );
@@ -161,7 +161,7 @@ class ResponseTest extends TestCase
         $data = ['Foo' => "single \"slash 'quote'", 'Bar' => '<tag>&ampersand</tag>"double quote"'];
         $options = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT |
                    JSON_UNESCAPED_SLASHES | JSON_FORCE_OBJECT;
-        $this->equivalentConstructs(
+        $this->assertEqualResponces(
             new Response(200, new FakeStream(json_encode($data, $options)), ['Content-Type' => 'application/json']),
             Response::json($data)
         );
@@ -173,7 +173,7 @@ class ResponseTest extends TestCase
         Response::redirect('/foo/bar', 200);
     }
 
-    private function equivalentConstructs(ResponseInterface $responseA, ResponseInterface $responseB)
+    private function assertEqualResponces(ResponseInterface $responseA, ResponseInterface $responseB): void
     {
         $bodyA = $responseA->getBody();
         $this->assertSame($bodyA->getContents(), $responseB->getBody()->getContents());
