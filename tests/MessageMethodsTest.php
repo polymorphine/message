@@ -20,6 +20,30 @@ use InvalidArgumentException;
 
 class MessageMethodsTest extends TestCase
 {
+    public static function invalidHeaderNames(): array
+    {
+        return [
+            'empty name'            => [''],
+            'spaced name'           => ['header name'],
+            'invalid name char "@"' => ['email@example']
+        ];
+    }
+
+    public function invalidHeaderValues(): array
+    {
+        return [
+            'null value'                    => [null],
+            'bool value'                    => [true],
+            'toString object'               => [new FakeStream()],
+            'int within array'              => [['valid header', 9001]],
+            'illegal char'                  => ["some value\xFF"],
+            'invalid linebreak \n'          => ["some\n value"],
+            'invalid linebreak \r'          => ["some\r value"],
+            'invalid linebreak \n\r'        => ["some\n\r value"],
+            'no whitespace after linebreak' => ["some\r\nvalue"]
+        ];
+    }
+
     public function test_Instantiation()
     {
         $this->assertInstanceOf(MessageInterface::class, $this->message());
@@ -222,72 +246,36 @@ class MessageMethodsTest extends TestCase
         $this->assertSame(['test' => ['first', 'second']], $message->withAddedHeader('test', ['two' => 'second'])->getHeaders());
     }
 
-    /**
-     * @dataProvider invalidHeaderNames
-     *
-     * @param $name
-     */
-    public function test_Instantiation_WithInvalidHeaderName_ThrowsException($name)
+    /** @dataProvider invalidHeaderNames */
+    public function test_Instantiation_WithInvalidHeaderName_ThrowsException(string $name)
     {
         $this->expectException(InvalidArgumentException::class);
         $this->message([$name => 'valid value']);
     }
 
     /**
-     * @dataProvider invalidHeaderNames
+     * @param mixed $header
      *
-     * @param $name
-     */
-    public function test_WithHeader_SettingInvalidHeaderName_ThrowsException($name)
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->message()->withHeader($name, 'valid value');
-    }
-
-    /**
-     * @dataProvider invalidHeaderNames
-     *
-     * @param $name
-     */
-    public function test_WithAddedHeader_SettingInvalidHeaderName_ThrowsException($name)
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->message()->withAddedHeader($name, 'valid value');
-    }
-
-    public function invalidHeaderNames(): array
-    {
-        return [
-            'empty name'            => [''],
-            'spaced name'           => ['header name'],
-            'invalid name char "@"' => ['email@example']
-        ];
-    }
-
-    /**
      * @dataProvider invalidHeaderValues
-     *
-     * @param $header
      */
-    public function test_Instantiation_WithInvalidHeaderValues_ThrowsException($header)
+    public function test_Instantiation_WithInvalidHeaderValue_ThrowsException($header)
     {
         $this->expectException(InvalidArgumentException::class);
         $this->message(['test' => $header]);
     }
 
-    public function invalidHeaderValues(): array
+    /** @dataProvider invalidHeaderNames */
+    public function test_WithHeader_SettingInvalidHeaderName_ThrowsException(string $name)
     {
-        return [
-            'null value'                    => [null],
-            'bool value'                    => [true],
-            'toString object'               => [new FakeStream()],
-            'int within array'              => [['valid header', 9001]],
-            'illegal char'                  => ["some value\xFF"],
-            'invalid linebreak \n'          => ["some\n value"],
-            'invalid linebreak \r'          => ["some\r value"],
-            'invalid linebreak \n\r'        => ["some\n\r value"],
-            'no whitespace after linebreak' => ["some\r\nvalue"]
-        ];
+        $this->expectException(InvalidArgumentException::class);
+        $this->message()->withHeader($name, 'valid value');
+    }
+
+    /** @dataProvider invalidHeaderNames */
+    public function test_WithAddedHeader_SettingInvalidHeaderName_ThrowsException(string $name)
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->message()->withAddedHeader($name, 'valid value');
     }
 
     private function message(array $headers = [], $version = null): MessageMethodsClass

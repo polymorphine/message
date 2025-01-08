@@ -18,6 +18,44 @@ use InvalidArgumentException;
 
 class UriTest extends TestCase
 {
+    public static function invalidPorts(): array
+    {
+        return [
+            'bool'           => [true],
+            'literal string' => ['string'],
+            'array'          => [[45]],
+            'object'         => [(object) ['port' => 113]],
+            'zero'           => [0],
+            'negative'       => [-20],
+            'out of range'   => [65536],
+            'numeric string' => ['65']
+        ];
+    }
+
+    public static function invalidUserInfoArgs(): array
+    {
+        return [
+            'bool username'   => [true, null],
+            'array username'  => [['user', 'password'], null],
+            'object username' => [(object) ['user' => 'foo'], null],
+            'int username'    => [65536, null],
+            'bool password'   => ['user', false],
+            'array password'  => ['user', ['password']],
+            'object password' => ['user', (object) ['password' => 'foo']],
+            'int password'    => ['user', 65536]
+        ];
+    }
+
+    public static function invalidNonStringArgs(): array
+    {
+        return [
+            'bool'   => [true],
+            'array'  => [['string']],
+            'object' => [(object) ['value' => 'string']],
+            'int'    => [65536]
+        ];
+    }
+
     public function test_EmptyConstructorUri_ReturnsRootPathUriString()
     {
         $this->assertSame('/', (string) $this->uri());
@@ -199,20 +237,6 @@ class UriTest extends TestCase
         $this->uri()->withPort($port);
     }
 
-    public function invalidPorts(): array
-    {
-        return [
-            'bool'           => [true],
-            'literal string' => ['string'],
-            'array'          => [[45]],
-            'object'         => [(object) ['port' => 113]],
-            'zero'           => [0],
-            'negative'       => [-20],
-            'out of range'   => [65536],
-            'numeric string' => ['65']
-        ];
-    }
-
     /**
      * @param mixed $user
      * @param mixed $pass
@@ -223,20 +247,6 @@ class UriTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->uri()->withUserInfo($user, $pass);
-    }
-
-    public function invalidUserInfoArgs(): array
-    {
-        return [
-            'bool username'   => [true, null],
-            'array username'  => [['user', 'password'], null],
-            'object username' => [(object) ['user' => 'foo'], null],
-            'int username'    => [65536, null],
-            'bool password'   => ['user', false],
-            'array password'  => ['user', ['password']],
-            'object password' => ['user', (object) ['password' => 'foo']],
-            'int password'    => ['user', 65536]
-        ];
     }
 
     /**
@@ -292,16 +302,6 @@ class UriTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->uri()->withFragment($fragment);
-    }
-
-    public function invalidNonStringArgs(): array
-    {
-        return [
-            'bool'   => [true],
-            'array'  => [['string']],
-            'object' => [(object) ['value' => 'string']],
-            'int'    => [65536]
-        ];
     }
 
     public function test_IllegalUriCharactersArePercentEncoded()

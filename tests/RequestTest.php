@@ -21,6 +21,15 @@ use InvalidArgumentException;
 
 class RequestTest extends TestCase
 {
+    public static function mutatorMethods(): array
+    {
+        return [
+            'withRequestTarget' => [fn (Request $original) => $original->withRequestTarget('*')],
+            'withUri'           => [fn (Request $original) => $original->withUri(Uri::fromString('/some/path'))],
+            'withMethod'        => [fn (Request $original) => $original->withMethod('POST')]
+        ];
+    }
+
     public function test_Instantiation()
     {
         $this->assertInstanceOf(RequestInterface::class, $this->request());
@@ -39,15 +48,6 @@ class RequestTest extends TestCase
         $this->assertNotSame($cloneA, $cloneB);
         $this->assertEquals($cloneA, $cloneB);
         $this->assertNotEquals($original, $cloneA);
-    }
-
-    public function mutatorMethods(): array
-    {
-        return [
-            'withRequestTarget' => [fn (Request $original) => $original->withRequestTarget('*')],
-            'withUri'           => [fn (Request $original) => $original->withUri(Uri::fromString('/some/path'))],
-            'withMethod'        => [fn (Request $original) => $original->withMethod('POST')]
-        ];
     }
 
     public function test_GetMethod_ReturnsInstanceMethod()

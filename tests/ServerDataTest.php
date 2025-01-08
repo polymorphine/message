@@ -27,9 +27,19 @@ class ServerDataTest extends TestCase
 {
     public static ?array $nativeCallResult = null;
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         self::$nativeCallResult = null;
+    }
+
+    public static function normalizedHeaderNames(): array
+    {
+        return [
+            ['HTTP_ACCEPT', 'Accept'],
+            ['HTTP_ACCEPT_ENCODING', 'Accept-Encoding'],
+            ['HTTP_CONTENT_MD5', 'Content-MD5'],
+            ['CONTENT_TYPE', 'Content-Type']
+        ];
     }
 
     public function test_Instantiation()
@@ -66,26 +76,11 @@ class ServerDataTest extends TestCase
         $this->assertSame([], $request->getAttributes());
     }
 
-    /**
-     * @dataProvider normalizeHeaderNames
-     *
-     * @param $serverKey
-     * @param $headerName
-     */
-    public function test_NormalizedHeaderNamesFromServerArray($serverKey, $headerName)
+    /** @dataProvider normalizedHeaderNames */
+    public function test_NormalizedHeaderNamesFromServerArray(string $serverKey, string $headerName)
     {
         $data = $this->serverData(['server' => [$serverKey => 'value']]);
         $this->assertTrue(ServerRequest::fromServerData($data)->hasHeader($headerName));
-    }
-
-    public function normalizeHeaderNames(): array
-    {
-        return [
-            ['HTTP_ACCEPT', 'Accept'],
-            ['HTTP_ACCEPT_ENCODING', 'Accept-Encoding'],
-            ['HTTP_CONTENT_MD5', 'Content-MD5'],
-            ['CONTENT_TYPE', 'Content-Type']
-        ];
     }
 
     public function test_ResolvingAuthorizationHeader()

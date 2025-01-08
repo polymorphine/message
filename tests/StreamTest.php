@@ -30,11 +30,31 @@ class StreamTest extends TestCase
     protected ?StreamInterface $stream = null;
     protected string           $testFilename = '';
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         self::$overrideFunctions = false;
         if ($this->stream) { $this->stream->close(); }
         if (file_exists($this->testFilename)) { unlink($this->testFilename); }
+    }
+
+    public static function validModes(): array
+    {
+        return [['w+b'], ['wb+'], ['xt+'], ['r+t'], ['cb+']];
+    }
+
+    public static function metaKeys(): array
+    {
+        return [
+            ['timed_out', 'boolean'],
+            ['blocked', 'boolean'],
+            ['eof', 'boolean'],
+            ['unread_bytes', 'integer'],
+            ['stream_type', 'string'],
+            ['wrapper_type', 'string'],
+            ['mode', 'string'],
+            ['seekable', 'boolean'],
+            ['uri', 'string']
+        ];
     }
 
     public function test_Instantiation_WithStreamName()
@@ -74,11 +94,6 @@ class StreamTest extends TestCase
         Stream::fromResourceUri('php://someFile.txt', $mode);
     }
 
-    public function validModes(): array
-    {
-        return [['w+b'], ['wb+'], ['xt+'], ['r+t'], ['cb+']];
-    }
-
     /** @dataProvider metaKeys */
     public function test_GetMetaData_ReturnCorrectValueTypes(string $key, string $type)
     {
@@ -86,21 +101,6 @@ class StreamTest extends TestCase
         $this->assertSame($type, gettype($meta[$key]));
         $meta = $this->stream('php://memory')->getMetadata($key);
         $this->assertSame($type, gettype($meta));
-    }
-
-    public function metaKeys(): array
-    {
-        return [
-            ['timed_out', 'boolean'],
-            ['blocked', 'boolean'],
-            ['eof', 'boolean'],
-            ['unread_bytes', 'integer'],
-            ['stream_type', 'string'],
-            ['wrapper_type', 'string'],
-            ['mode', 'string'],
-            ['seekable', 'boolean'],
-            ['uri', 'string']
-        ];
     }
 
     public function test_GetMetadata_ForNotExistingKey_ReturnsNull()

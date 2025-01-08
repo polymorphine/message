@@ -20,6 +20,26 @@ use InvalidArgumentException;
 
 class ServerRequestTest extends TestCase
 {
+    public static function instanceProperties(): array
+    {
+        return [
+            'cookie' => ['cookie', ['key' => 'value'], fn (ServerRequest $request) => $request->getCookieParams()],
+            'query'  => ['query', ['key' => 'value'], fn (ServerRequest $request) => $request->getQueryParams()],
+            'pBody'  => ['parsedBody', ['key' => 'value'], fn (ServerRequest $request) => $request->getParsedBody()],
+            'files'  => ['files', ['key' => new Doubles\FakeUploadedFile()], fn (ServerRequest $request) => $request->getUploadedFiles()]
+        ];
+    }
+
+    public static function mutatorMethods(): array
+    {
+        return [
+            'cookie' => [fn (ServerRequest $original) => $original->withCookieParams(['key' => 'value'])],
+            'query'  => [fn (ServerRequest $original) => $original->withQueryParams(['key' => 'value'])],
+            'pBody'  => [fn (ServerRequest $original) => $original->withParsedBody(['key' => 'value'])],
+            'files'  => [fn (ServerRequest $original) => $original->withUploadedFiles(['key' => new Doubles\FakeUploadedFile()])]
+        ];
+    }
+
     public function test_Instantiation()
     {
         $this->assertInstanceOf(ServerRequestInterface::class, $this->request());
@@ -39,16 +59,6 @@ class ServerRequestTest extends TestCase
     public function test_Getters_ReturnConstructorProperties(string $name, array $value, callable $getValue)
     {
         $this->assertSame($value, $getValue($this->request([$name => $value])));
-    }
-
-    public static function instanceProperties(): array
-    {
-        return [
-            'cookie' => ['cookie', ['key' => 'value'], fn (ServerRequest $request) => $request->getCookieParams()],
-            'query'  => ['query', ['key' => 'value'], fn (ServerRequest $request) => $request->getQueryParams()],
-            'pBody'  => ['parsedBody', ['key' => 'value'], fn (ServerRequest $request) => $request->getParsedBody()],
-            'files'  => ['files', ['key' => new Doubles\FakeUploadedFile()], fn (ServerRequest $request) => $request->getUploadedFiles()]
-        ];
     }
 
     public function test_GetAttribute_WhenAttributeExists_ReturnsAttributeValue()
@@ -78,16 +88,6 @@ class ServerRequestTest extends TestCase
         $derivedB = $mutate($original);
         $this->assertEquals($derivedA, $derivedB);
         $this->assertNotSame($derivedA, $derivedB);
-    }
-
-    public static function mutatorMethods(): array
-    {
-        return [
-            'cookie' => [fn (ServerRequest $original) => $original->withCookieParams(['key' => 'value'])],
-            'query'  => [fn (ServerRequest $original) => $original->withQueryParams(['key' => 'value'])],
-            'pBody'  => [fn (ServerRequest $original) => $original->withParsedBody(['key' => 'value'])],
-            'files'  => [fn (ServerRequest $original) => $original->withUploadedFiles(['key' => new Doubles\FakeUploadedFile()])]
-        ];
     }
 
     public function test_AttributeMutation_ReturnsNewInstance()
