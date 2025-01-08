@@ -178,9 +178,8 @@ class ServerDataTest extends TestCase
 
     public function testInvalidFileDataStructure_ThrowsException()
     {
-        $server = $this->serverData(['files' => ['field' => 'filename.txt']]);
         $this->expectException(InvalidArgumentException::class);
-        $server->params();
+        $this->serverData(['files' => ['field' => 'filename.txt']]);
     }
 
     private function serverData(array $data = []): ServerData

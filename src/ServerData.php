@@ -37,7 +37,7 @@ class ServerData
         $this->get    = $params['get'] ?? [];
         $this->post   = $params['post'] ?? [];
         $this->cookie = $params['cookie'] ?? [];
-        $this->files  = $params['files'] ?? [];
+        $this->files  = array_map(fn ($value) => $this->resolveFileTree($value), $params['files'] ?? []);
     }
 
     /**
@@ -82,7 +82,7 @@ class ServerData
             'cookie'     => $this->cookie,
             'query'      => $this->get,
             'parsedBody' => $this->post,
-            'files'      => $this->normalizeFiles($this->files),
+            'files'      => $this->uploadedFiles(),
             'version'    => $this->protocolVersion()
         ];
     }
@@ -92,7 +92,7 @@ class ServerData
      */
     public function uploadedFiles(): array
     {
-        return $this->normalizeFiles($this->files);
+        return $this->files;
     }
 
     private function protocolVersion(): string
@@ -162,20 +162,10 @@ class ServerData
         return $headers['Authorization'] ?? $headers['authorization'] ?? null;
     }
 
-    private function normalizeFiles(array $files): array
-    {
-        $normalizedFiles = [];
-        foreach ($files as $key => $value) {
-            $normalizedFiles[$key] = ($value instanceof UploadedFileInterface)
-                ? $value
-                : $this->resolveFileTree($value);
-        }
-
-        return $normalizedFiles;
-    }
-
     private function resolveFileTree($value)
     {
+        if ($value instanceof UploadedFileInterface) { return $value; }
+
         if (!is_array($value)) {
             throw new InvalidArgumentException('Invalid file data structure');
         }
