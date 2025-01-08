@@ -20,27 +20,6 @@ use InvalidArgumentException;
 
 class ServerRequestTest extends TestCase
 {
-    public function testInstantiation()
-    {
-        $this->assertInstanceOf(ServerRequestInterface::class, $this->request());
-    }
-
-    public function testGetServerParams_ReturnsInstanceServerParamsArray()
-    {
-        $params = ['key' => 'value'];
-        $this->assertSame($params, $this->request(['server' => $params])->getServerParams());
-    }
-
-    /**
-     * @param callable $getValue fn(ServerRequest) => array
-     *
-     * @dataProvider instanceProperties
-     */
-    public function testGetters_ReturnConstructorProperties(string $name, array $value, callable $getValue)
-    {
-        $this->assertSame($value, $getValue($this->request([$name => $value])));
-    }
-
     public static function instanceProperties(): array
     {
         return [
@@ -49,35 +28,6 @@ class ServerRequestTest extends TestCase
             'pBody'  => ['parsedBody', ['key' => 'value'], fn (ServerRequest $request) => $request->getParsedBody()],
             'files'  => ['files', ['key' => new Doubles\FakeUploadedFile()], fn (ServerRequest $request) => $request->getUploadedFiles()]
         ];
-    }
-
-    public function testGetAttribute_ReturnsSpecifiedAttributeValue()
-    {
-        $request = $this->request()->withAttribute('name', 'value');
-        $this->assertSame('value', $request->getAttribute('name', 'default'));
-        $request = $this->request()->withAttribute('name', null);
-        $this->assertSame(null, $request->getAttribute('name', 'default'));
-    }
-
-    public function testGetAttribute_ReturnsDefaultValueIfAttributeNotPresent()
-    {
-        $request = $this->request(['attributes' => ['unknownName' => 'value']]);
-        $this->assertSame('default', $request->getAttribute('name', 'default'));
-        $this->assertSame(null, $request->getAttribute('name'));
-    }
-
-    /**
-     * @param callable $mutate fn(ServerRequest) => ServerRequest
-     *
-     * @dataProvider mutatorMethods
-     */
-    public function testMutatorMethods_ReturnNewInstance(callable $mutate)
-    {
-        $original = $this->request();
-        $derivedA = $mutate($original);
-        $derivedB = $mutate($original);
-        $this->assertEquals($derivedA, $derivedB);
-        $this->assertNotSame($derivedA, $derivedB);
     }
 
     public static function mutatorMethods(): array
@@ -90,7 +40,57 @@ class ServerRequestTest extends TestCase
         ];
     }
 
-    public function testAttributeMutation_ReturnsNewInstance()
+    public function test_Instantiation()
+    {
+        $this->assertInstanceOf(ServerRequestInterface::class, $this->request());
+    }
+
+    public function test_GetServerParams_ReturnsInstanceServerParamsArray()
+    {
+        $params = ['key' => 'value'];
+        $this->assertSame($params, $this->request(['server' => $params])->getServerParams());
+    }
+
+    /**
+     * @param callable $getValue fn(ServerRequest) => array
+     *
+     * @dataProvider instanceProperties
+     */
+    public function test_Getters_ReturnConstructorProperties(string $name, array $value, callable $getValue)
+    {
+        $this->assertSame($value, $getValue($this->request([$name => $value])));
+    }
+
+    public function test_GetAttribute_WhenAttributeExists_ReturnsAttributeValue()
+    {
+        $request = $this->request()->withAttribute('name', 'value');
+        $this->assertSame('value', $request->getAttribute('name', 'default'));
+        $request = $this->request()->withAttribute('name', null);
+        $this->assertSame(null, $request->getAttribute('name', 'default'));
+    }
+
+    public function test_GetAttribute_WhenAttributeNotPresent_ReturnsDefaultValue()
+    {
+        $request = $this->request(['attributes' => ['unknownName' => 'value']]);
+        $this->assertSame('default', $request->getAttribute('name', 'default'));
+        $this->assertSame(null, $request->getAttribute('name'));
+    }
+
+    /**
+     * @param callable $mutate fn(ServerRequest) => ServerRequest
+     *
+     * @dataProvider mutatorMethods
+     */
+    public function test_MutatorMethods_ReturnNewInstance(callable $mutate)
+    {
+        $original = $this->request();
+        $derivedA = $mutate($original);
+        $derivedB = $mutate($original);
+        $this->assertEquals($derivedA, $derivedB);
+        $this->assertNotSame($derivedA, $derivedB);
+    }
+
+    public function test_AttributeMutation_ReturnsNewInstance()
     {
         $original = $this->request();
         [$name, $value] = ['name', 'value'];
@@ -106,7 +106,7 @@ class ServerRequestTest extends TestCase
         $this->assertNotSame($derivedA, $derivedB);
     }
 
-    public function testGetParsedBodyForRequestWithoutBody_returnsNull()
+    public function test_GetParsedBody_ForRequestWithoutBody_returnsNull()
     {
         $this->assertNull($this->request()->getParsedBody());
         $request = $this->request(['body' => ['key' => 'value']]);
@@ -114,14 +114,14 @@ class ServerRequestTest extends TestCase
         $this->assertNull($request->withParsedBody([])->getParsedBody());
     }
 
-    public function testInvalidArgumentForWithParsedBodyMethod_ThrowsException()
+    public function test_WithParsedBody_CalledWithInvalidArgument_ThrowsException()
     {
         $request = $this->request();
         $this->expectException(InvalidArgumentException::class);
         $request->withParsedBody(400);
     }
 
-    public function testUploadedFilesInvalidStructure_ThrowsInvalidArgumentException()
+    public function test_UploadedFiles_WithInvalidStructure_ThrowsInvalidArgumentException()
     {
         $this->expectException(InvalidArgumentException::class);
         $files = [
@@ -131,7 +131,7 @@ class ServerRequestTest extends TestCase
         $this->request(['files' => $files]);
     }
 
-    public function testUploadedFileNestedStructureIsValid()
+    public function test_UploadedFile_WithNestedStructure()
     {
         $files = [
             'first' => new Doubles\FakeUploadedFile(),

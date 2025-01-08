@@ -21,12 +21,32 @@ use InvalidArgumentException;
 
 class ResponseTest extends TestCase
 {
-    public function testInstantiation()
+    public static function invalidStatusCodes(): array
+    {
+        return [
+            'null'            => [null],
+            'false'           => [false],
+            'string'          => ['200'],
+            'below min range' => [99],
+            'above max range' => [600]
+        ];
+    }
+
+    public static function invalidReasonPhrases(): array
+    {
+        return [
+            'array' => [['Reason in array']],
+            'false' => [false],
+            'int'   => [20]
+        ];
+    }
+
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(ResponseInterface::class, $this->response());
     }
 
-    public function testStatusCodeIsReturned()
+    public function test_StatusCodeIsReturned()
     {
         $fail = 'Status code should be set by constructor';
         $this->assertSame(201, $this->response(201)->getStatusCode(), $fail);
@@ -35,7 +55,7 @@ class ResponseTest extends TestCase
         $this->assertSame(300, $this->response()->withStatus(300)->getStatusCode(), $fail);
     }
 
-    public function testNewStatusCode_ReturnsNewObject()
+    public function test_NewStatusCode_ReturnsNewObject()
     {
         $original = $this->response(404);
         $clone    = $original->withStatus(201);
@@ -43,7 +63,7 @@ class ResponseTest extends TestCase
         $this->assertNotSame($original, $clone);
     }
 
-    public function testReasonPhraseResolve()
+    public function test_ReasonPhraseResolve()
     {
         $fail = 'Default status code (200) should resolve into default "OK" reason phrase if not specified';
         $this->assertSame('OK', $this->response()->getReasonPhrase(), $fail);
@@ -69,91 +89,71 @@ class ResponseTest extends TestCase
         $this->assertSame($reason, $this->response(201)->withStatus(201, $reason)->getReasonPhrase(), $fail);
     }
 
-    public function testConstructorWithInvalidStatusCode_ThrowsException()
+    public function test_ConstructorWithInvalidStatusCode_ThrowsException()
     {
         $this->expectException(InvalidArgumentException::class);
         $this->response(900);
     }
 
     /**
-     * @dataProvider invalidStatusCodes
-     *
      * @param $code
+     *
+     * @dataProvider invalidStatusCodes
      */
-    public function testWithStatusWithInvalidStatusCode_ThrowsException($code)
+    public function test_WithStatusWithInvalidStatusCode_ThrowsException($code)
     {
         $this->expectException(InvalidArgumentException::class);
         $this->response()->withStatus($code);
     }
 
-    public function invalidStatusCodes(): array
-    {
-        return [
-            'null'            => [null],
-            'false'           => [false],
-            'string'          => ['200'],
-            'below min range' => [99],
-            'above max range' => [600]
-        ];
-    }
-
     /**
-     * @dataProvider invalidReasonPhrases
-     *
      * @param $reason
+     *
+     * @dataProvider invalidReasonPhrases
      */
-    public function testConstructorWithInvalidReasonPhrase_ThrowsException($reason)
+    public function test_ConstructorWithInvalidReasonPhrase_ThrowsException($reason)
     {
         $this->expectException(InvalidArgumentException::class);
         $this->response(200, $reason);
     }
 
     /**
-     * @dataProvider invalidReasonPhrases
-     *
      * @param $reason
+     *
+     * @dataProvider invalidReasonPhrases
      */
-    public function testWithStatusWithInvalidReasonPhrase_ThrowsException($reason)
+    public function test_WithStatusWithInvalidReasonPhrase_ThrowsException($reason)
     {
         $this->expectException(InvalidArgumentException::class);
         $this->response()->withStatus(200, $reason);
     }
 
-    public function invalidReasonPhrases(): array
+    public function test_NamedConstructors()
     {
-        return [
-            'array' => [['Reason in array']],
-            'false' => [false],
-            'int'   => [20]
-        ];
-    }
-
-    public function testNamedConstructors()
-    {
-        $this->equivalentConstructs(
+        $this->assertEqualResponces(
             new Response(303, null, ['Location' => '/foo/bar/234']),
             Response::redirect(Uri::fromString('/foo/bar/234'))
         );
-        $this->equivalentConstructs(
+        $this->assertEqualResponces(
             new Response(301, null, ['Location' => '/foo/bar/baz']),
             Response::redirect('/foo/bar/baz', 301)
         );
-        $this->equivalentConstructs(new Response(400), Response::badRequest());
-        $this->equivalentConstructs(new Response(401), Response::unauthorized());
-        $this->equivalentConstructs(new Response(404), Response::notFound());
-        $this->equivalentConstructs(
+        $this->assertEqualResponces(new Response(400), Response::badRequest());
+        $this->assertEqualResponces(new Response(401), Response::unauthorized());
+        $this->assertEqualResponces(new Response(404), Response::notFound());
+        $this->assertEqualResponces(
             new Response(404, new FakeStream('Not Found. Sorry.')),
             Response::notFound(new FakeStream('Not Found. Sorry.'))
         );
-        $this->equivalentConstructs(
+        $this->assertEqualResponces(
             new Response(200, new FakeStream('text'), ['Content-Type' => 'text/plain']),
             Response::text('text')
         );
-        $this->equivalentConstructs(
+        $this->assertEqualResponces(
             new Response(200, new FakeStream('html'), ['Content-Type' => 'text/html']),
             Response::html('html')
         );
-        $this->equivalentConstructs(
+        $this->assertEqualResponces(
             new Response(200, new FakeStream('xml'), ['Content-Type' => 'application/xml']),
             Response::xml('xml')
         );
@@ -161,19 +161,19 @@ class ResponseTest extends TestCase
         $data = ['Foo' => "single \"slash 'quote'", 'Bar' => '<tag>&ampersand</tag>"double quote"'];
         $options = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT |
                    JSON_UNESCAPED_SLASHES | JSON_FORCE_OBJECT;
-        $this->equivalentConstructs(
+        $this->assertEqualResponces(
             new Response(200, new FakeStream(json_encode($data, $options)), ['Content-Type' => 'application/json']),
             Response::json($data)
         );
     }
 
-    public function testRedirectWithInvalidStatusCode_ThrowsException()
+    public function test_RedirectWithInvalidStatusCode_ThrowsException()
     {
         $this->expectException(InvalidArgumentException::class);
         Response::redirect('/foo/bar', 200);
     }
 
-    private function equivalentConstructs(ResponseInterface $responseA, ResponseInterface $responseB)
+    private function assertEqualResponces(ResponseInterface $responseA, ResponseInterface $responseB): void
     {
         $bodyA = $responseA->getBody();
         $this->assertSame($bodyA->getContents(), $responseB->getBody()->getContents());

@@ -27,25 +27,25 @@ use RuntimeException;
 
 class FactoriesTest extends TestCase
 {
-    public function testRequestFactory()
+    public function test_RequestFactory()
     {
         $factory = new Factory\RequestFactory();
         $this->assertInstanceOf(Request::class, $factory->createRequest('GET', 'http://example.com'));
     }
 
-    public function testServerRequestFactory()
+    public function test_ServerRequestFactory()
     {
         $factory = new Factory\ServerRequestFactory();
         $this->assertInstanceOf(ServerRequest::class, $factory->createServerRequest('POST', 'http://example.com'));
     }
 
-    public function testResponseFactory()
+    public function test_ResponseFactory()
     {
         $factory = new Factory\ResponseFactory();
         $this->assertInstanceOf(Response::class, $factory->createResponse());
     }
 
-    public function testStreamFactory()
+    public function test_StreamFactory()
     {
         $factory = new Factory\StreamFactory();
         $this->assertInstanceOf(Stream::class, $factory->createStream('contents'));
@@ -53,21 +53,21 @@ class FactoriesTest extends TestCase
         $this->assertInstanceOf(Stream::class, $factory->createStreamFromResource(fopen('php://temp', 'w+b')));
     }
 
-    public function testInvalidStreamMode_ThrowsException()
+    public function test_InvalidStreamMode_ThrowsException()
     {
         $factory = new Factory\StreamFactory();
         $this->expectException(InvalidArgumentException::class);
         $this->assertInstanceOf(Stream::class, $factory->createStreamFromFile('someFile.txt', 'invalid'));
     }
 
-    public function testInvalidStreamFilename_ThrowsException()
+    public function test_InvalidStreamFilename_ThrowsException()
     {
         $factory = new Factory\StreamFactory();
         $this->expectException(RuntimeException::class);
         $this->assertInstanceOf(Stream::class, $factory->createStreamFromFile('not-A-File.txt'));
     }
 
-    public function testUploadedFileFactory()
+    public function test_UploadedFileFactory()
     {
         $factory = new Factory\UploadedFileFactory();
         $this->assertInstanceOf(UploadedFile::class, $instance = $factory->createUploadedFile(new FakeStream()));
@@ -82,7 +82,7 @@ class FactoriesTest extends TestCase
         $this->assertEquals(NonSAPIUploadedFile::class, get_class($instance));
     }
 
-    public function testUnreadableFileStream_ThrowsException()
+    public function test_UnreadableFileStream_ThrowsException()
     {
         $stream = new FakeStream();
         $stream->readable = false;
@@ -92,13 +92,13 @@ class FactoriesTest extends TestCase
         $factory->createUploadedFile($stream);
     }
 
-    public function testUriFactory()
+    public function test_UriFactory()
     {
         $factory = new Factory\UriFactory();
         $this->assertInstanceOf(Uri::class, $factory->createUri('https://www.example.com'));
     }
 
-    public function testMalformedUri_ThrowsException()
+    public function test_MalformedUri_ThrowsException()
     {
         $factory = new Factory\UriFactory();
         $this->expectException(InvalidArgumentException::class);
