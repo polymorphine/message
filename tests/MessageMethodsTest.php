@@ -20,30 +20,6 @@ use InvalidArgumentException;
 
 class MessageMethodsTest extends TestCase
 {
-    public static function invalidHeaderNames(): array
-    {
-        return [
-            'empty name'            => [''],
-            'spaced name'           => ['header name'],
-            'invalid name char "@"' => ['email@example']
-        ];
-    }
-
-    public function invalidHeaderValues(): array
-    {
-        return [
-            'null value'                    => [null],
-            'bool value'                    => [true],
-            'toString object'               => [new FakeStream()],
-            'int within array'              => [['valid header', 9001]],
-            'illegal char'                  => ["some value\xFF"],
-            'invalid linebreak \n'          => ["some\n value"],
-            'invalid linebreak \r'          => ["some\r value"],
-            'invalid linebreak \n\r'        => ["some\n\r value"],
-            'no whitespace after linebreak' => ["some\r\nvalue"]
-        ];
-    }
-
     public function test_Instantiation()
     {
         $this->assertInstanceOf(MessageInterface::class, $this->message());
@@ -276,6 +252,30 @@ class MessageMethodsTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->message()->withAddedHeader($name, 'valid value');
+    }
+
+    public static function invalidHeaderNames(): iterable
+    {
+        return [
+            'empty name'            => [''],
+            'spaced name'           => ['header name'],
+            'invalid name char "@"' => ['email@example']
+        ];
+    }
+
+    public static function invalidHeaderValues(): iterable
+    {
+        return [
+            'null value'                    => [null],
+            'bool value'                    => [true],
+            'toString object'               => [new FakeStream()],
+            'int within array'              => [['valid header', 9001]],
+            'illegal char'                  => ["some value\xFF"],
+            'invalid linebreak \n'          => ["some\n value"],
+            'invalid linebreak \r'          => ["some\r value"],
+            'invalid linebreak \n\r'        => ["some\n\r value"],
+            'no whitespace after linebreak' => ["some\r\nvalue"]
+        ];
     }
 
     private function message(array $headers = [], $version = null): MessageMethodsClass

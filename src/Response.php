@@ -21,35 +21,6 @@ class Response implements ResponseInterface
     use StatusCodesTrait;
     use MessageMethodsTrait;
 
-    private int    $status;
-    private string $reason;
-
-    /**
-     * @param int              $statusCode Normally one of the status codes defined by RFC 7231 section 6
-     * @param ?StreamInterface $body
-     * @param array            $headers    Associative array of header strings or arrays of header strings
-     * @param array            $params     Associative array with following keys and its default values
-     *                                     when key is not present or its value is null:
-     *                                     - version - http protocol version (default: '1.1')
-     *                                     - reason - reason phrase normally associated with $statusCode, so by
-     *                                     default it will be resolved from it.
-     *
-     * @see https://tools.ietf.org/html/rfc7231#section-6
-     * @see StatusCodesTrait
-     */
-    public function __construct(
-        int $statusCode,
-        ?StreamInterface $body = null,
-        array $headers = [],
-        array $params = []
-    ) {
-        $this->status  = $this->validStatusCode($statusCode);
-        $this->body    = $body ?? Stream::fromBodyString('');
-        $this->reason  = $this->validReasonPhrase($params['reason'] ?? '');
-        $this->version = isset($params['version']) ? $this->validProtocolVersion($params['version']) : '1.1';
-        $this->loadHeaders($headers);
-    }
-
     public static function text(string $text, int $statusCode = 200): self
     {
         return new self($statusCode, Stream::fromBodyString($text), ['Content-Type' => 'text/plain']);
@@ -105,6 +76,35 @@ class Response implements ResponseInterface
     public static function notFound(?StreamInterface $body = null): self
     {
         return new self(404, $body);
+    }
+
+    private int    $status;
+    private string $reason;
+
+    /**
+     * @param int              $statusCode Normally one of the status codes defined by RFC 7231 section 6
+     * @param ?StreamInterface $body
+     * @param array            $headers    Associative array of header strings or arrays of header strings
+     * @param array            $params     Associative array with following keys and its default values
+     *                                     when key is not present or its value is null:
+     *                                     - version - http protocol version (default: '1.1')
+     *                                     - reason - reason phrase normally associated with $statusCode, so by
+     *                                     default it will be resolved from it.
+     *
+     * @see https://tools.ietf.org/html/rfc7231#section-6
+     * @see StatusCodesTrait
+     */
+    public function __construct(
+        int $statusCode,
+        ?StreamInterface $body = null,
+        array $headers = [],
+        array $params = []
+    ) {
+        $this->status  = $this->validStatusCode($statusCode);
+        $this->body    = $body ?? Stream::fromBodyString('');
+        $this->reason  = $this->validReasonPhrase($params['reason'] ?? '');
+        $this->version = isset($params['version']) ? $this->validProtocolVersion($params['version']) : '1.1';
+        $this->loadHeaders($headers);
     }
 
     public function getStatusCode(): int

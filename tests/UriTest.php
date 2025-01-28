@@ -18,44 +18,6 @@ use InvalidArgumentException;
 
 class UriTest extends TestCase
 {
-    public static function invalidPorts(): array
-    {
-        return [
-            'bool'           => [true],
-            'literal string' => ['string'],
-            'array'          => [[45]],
-            'object'         => [(object) ['port' => 113]],
-            'zero'           => [0],
-            'negative'       => [-20],
-            'out of range'   => [65536],
-            'numeric string' => ['65']
-        ];
-    }
-
-    public static function invalidUserInfoArgs(): array
-    {
-        return [
-            'bool username'   => [true, null],
-            'array username'  => [['user', 'password'], null],
-            'object username' => [(object) ['user' => 'foo'], null],
-            'int username'    => [65536, null],
-            'bool password'   => ['user', false],
-            'array password'  => ['user', ['password']],
-            'object password' => ['user', (object) ['password' => 'foo']],
-            'int password'    => ['user', 65536]
-        ];
-    }
-
-    public static function invalidNonStringArgs(): array
-    {
-        return [
-            'bool'   => [true],
-            'array'  => [['string']],
-            'object' => [(object) ['value' => 'string']],
-            'int'    => [65536]
-        ];
-    }
-
     public function test_EmptyConstructorUri_ReturnsRootPathUriString()
     {
         $this->assertSame('/', (string) $this->uri());
@@ -384,6 +346,44 @@ class UriTest extends TestCase
         $uri = $this->uri('http://www.example.com/path/segment?query=segment#foo[bar]');
         $this->assertSame('foo%5Bbar%5D', $uri->getFragment());
         $this->assertSame('http://www.example.com/path/segment?query=segment#foo%5Bbar%5D', (string) $uri);
+    }
+
+    public static function invalidPorts(): iterable
+    {
+        return [
+            'bool'           => [true],
+            'literal string' => ['string'],
+            'array'          => [[45]],
+            'object'         => [(object) ['port' => 113]],
+            'zero'           => [0],
+            'negative'       => [-20],
+            'out of range'   => [65536],
+            'numeric string' => ['65']
+        ];
+    }
+
+    public static function invalidUserInfoArgs(): iterable
+    {
+        return [
+            'bool username'   => [true, null],
+            'array username'  => [['user', 'password'], null],
+            'object username' => [(object) ['user' => 'foo'], null],
+            'int username'    => [65536, null],
+            'bool password'   => ['user', false],
+            'array password'  => ['user', ['password']],
+            'object password' => ['user', (object) ['password' => 'foo']],
+            'int password'    => ['user', 65536]
+        ];
+    }
+
+    public static function invalidNonStringArgs(): iterable
+    {
+        return [
+            'bool'   => [true],
+            'array'  => [['string']],
+            'object' => [(object) ['value' => 'string']],
+            'int'    => [65536]
+        ];
     }
 
     private function uri($uri = ''): Uri

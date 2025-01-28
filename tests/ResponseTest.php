@@ -21,26 +21,6 @@ use InvalidArgumentException;
 
 class ResponseTest extends TestCase
 {
-    public static function invalidStatusCodes(): array
-    {
-        return [
-            'null'            => [null],
-            'false'           => [false],
-            'string'          => ['200'],
-            'below min range' => [99],
-            'above max range' => [600]
-        ];
-    }
-
-    public static function invalidReasonPhrases(): array
-    {
-        return [
-            'array' => [['Reason in array']],
-            'false' => [false],
-            'int'   => [20]
-        ];
-    }
-
     public function test_Instantiation()
     {
         $this->assertInstanceOf(ResponseInterface::class, $this->response());
@@ -171,6 +151,26 @@ class ResponseTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         Response::redirect('/foo/bar', 200);
+    }
+
+    public static function invalidStatusCodes(): iterable
+    {
+        return [
+            'null'            => [null],
+            'false'           => [false],
+            'string'          => ['200'],
+            'below min range' => [99],
+            'above max range' => [600]
+        ];
+    }
+
+    public static function invalidReasonPhrases(): iterable
+    {
+        return [
+            'array' => [['Reason in array']],
+            'false' => [false],
+            'int'   => [20]
+        ];
     }
 
     private function assertEqualResponces(ResponseInterface $responseA, ResponseInterface $responseB): void

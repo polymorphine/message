@@ -32,16 +32,6 @@ class ServerDataTest extends TestCase
         self::$nativeCallResult = null;
     }
 
-    public static function normalizedHeaderNames(): array
-    {
-        return [
-            ['HTTP_ACCEPT', 'Accept'],
-            ['HTTP_ACCEPT_ENCODING', 'Accept-Encoding'],
-            ['HTTP_CONTENT_MD5', 'Content-MD5'],
-            ['CONTENT_TYPE', 'Content-Type']
-        ];
-    }
-
     public function test_Instantiation()
     {
         $this->assertInstanceOf(ServerData::class, $this->serverData());
@@ -174,6 +164,16 @@ class ServerDataTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->serverData(['files' => ['field' => 'filename.txt']]);
+    }
+
+    public static function normalizedHeaderNames(): iterable
+    {
+        return [
+            ['HTTP_ACCEPT', 'Accept'],
+            ['HTTP_ACCEPT_ENCODING', 'Accept-Encoding'],
+            ['HTTP_CONTENT_MD5', 'Content-MD5'],
+            ['CONTENT_TYPE', 'Content-Type']
+        ];
     }
 
     private function serverData(array $data = []): ServerData

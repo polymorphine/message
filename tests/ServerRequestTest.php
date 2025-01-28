@@ -20,26 +20,6 @@ use InvalidArgumentException;
 
 class ServerRequestTest extends TestCase
 {
-    public static function instanceProperties(): array
-    {
-        return [
-            'cookie' => ['cookie', ['key' => 'value'], fn (ServerRequest $request) => $request->getCookieParams()],
-            'query'  => ['query', ['key' => 'value'], fn (ServerRequest $request) => $request->getQueryParams()],
-            'pBody'  => ['parsedBody', ['key' => 'value'], fn (ServerRequest $request) => $request->getParsedBody()],
-            'files'  => ['files', ['key' => new Doubles\FakeUploadedFile()], fn (ServerRequest $request) => $request->getUploadedFiles()]
-        ];
-    }
-
-    public static function mutatorMethods(): array
-    {
-        return [
-            'cookie' => [fn (ServerRequest $original) => $original->withCookieParams(['key' => 'value'])],
-            'query'  => [fn (ServerRequest $original) => $original->withQueryParams(['key' => 'value'])],
-            'pBody'  => [fn (ServerRequest $original) => $original->withParsedBody(['key' => 'value'])],
-            'files'  => [fn (ServerRequest $original) => $original->withUploadedFiles(['key' => new Doubles\FakeUploadedFile()])]
-        ];
-    }
-
     public function test_Instantiation()
     {
         $this->assertInstanceOf(ServerRequestInterface::class, $this->request());
@@ -142,6 +122,26 @@ class ServerRequestTest extends TestCase
         ];
         $request = $this->request(['files' => $files]);
         $this->assertSame($files, $request->getUploadedFiles());
+    }
+
+    public static function instanceProperties(): iterable
+    {
+        return [
+            'cookie' => ['cookie', ['key' => 'value'], fn (ServerRequest $request) => $request->getCookieParams()],
+            'query'  => ['query', ['key' => 'value'], fn (ServerRequest $request) => $request->getQueryParams()],
+            'pBody'  => ['parsedBody', ['key' => 'value'], fn (ServerRequest $request) => $request->getParsedBody()],
+            'files'  => ['files', ['key' => new Doubles\FakeUploadedFile()], fn (ServerRequest $request) => $request->getUploadedFiles()]
+        ];
+    }
+
+    public static function mutatorMethods(): iterable
+    {
+        return [
+            'cookie' => [fn (ServerRequest $original) => $original->withCookieParams(['key' => 'value'])],
+            'query'  => [fn (ServerRequest $original) => $original->withQueryParams(['key' => 'value'])],
+            'pBody'  => [fn (ServerRequest $original) => $original->withParsedBody(['key' => 'value'])],
+            'files'  => [fn (ServerRequest $original) => $original->withUploadedFiles(['key' => new Doubles\FakeUploadedFile()])]
+        ];
     }
 
     private function request(array $params = []): ServerRequest

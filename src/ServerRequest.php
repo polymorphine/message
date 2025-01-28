@@ -20,6 +20,22 @@ use InvalidArgumentException;
 
 class ServerRequest extends Request implements ServerRequestInterface
 {
+    public static function fromServerData(ServerData $data): self
+    {
+        return new self($data->method(), $data->uri(), $data->body(), $data->headers(), $data->params());
+    }
+
+    public static function fromGlobals(array $override = []): self
+    {
+        return self::fromServerData(new ServerData([
+            'server' => isset($override['server']) ? $override['server'] + $_SERVER : $_SERVER,
+            'get'    => isset($override['get']) ? $override['get'] + $_GET : $_GET,
+            'post'   => isset($override['post']) ? $override['post'] + $_POST : $_POST,
+            'cookie' => isset($override['cookie']) ? $override['cookie'] + $_COOKIE : $_COOKIE,
+            'files'  => isset($override['files']) ? $override['files'] + $_FILES : $_FILES
+        ]));
+    }
+
     private array  $server;
     private array  $cookie;
     private array  $query;
@@ -58,22 +74,6 @@ class ServerRequest extends Request implements ServerRequestInterface
         $this->parsedBody = empty($params['parsedBody']) ? null : $params['parsedBody'];
         $this->files      = isset($params['files']) ? $this->validUploadedFiles($params['files']) : [];
         parent::__construct($method, $uri, $body, $headers, $params);
-    }
-
-    public static function fromServerData(ServerData $data): self
-    {
-        return new self($data->method(), $data->uri(), $data->body(), $data->headers(), $data->params());
-    }
-
-    public static function fromGlobals(array $override = []): self
-    {
-        return self::fromServerData(new ServerData([
-            'server' => isset($override['server']) ? $override['server'] + $_SERVER : $_SERVER,
-            'get'    => isset($override['get']) ? $override['get'] + $_GET : $_GET,
-            'post'   => isset($override['post']) ? $override['post'] + $_POST : $_POST,
-            'cookie' => isset($override['cookie']) ? $override['cookie'] + $_COOKIE : $_COOKIE,
-            'files'  => isset($override['files']) ? $override['files'] + $_FILES : $_FILES
-        ]));
     }
 
     public function getServerParams(): array

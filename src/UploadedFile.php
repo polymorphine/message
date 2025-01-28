@@ -19,6 +19,18 @@ use RuntimeException;
 
 class UploadedFile implements UploadedFileInterface
 {
+    /**
+     * @param array $file Associative array with keys corresponding to $_FILES[name] array
+     *                    for single uploaded file
+     *
+     * @see https://www.php.net/manual/en/features.file-upload.post-method.php
+     */
+    public static function fromFileArray(array $file): self
+    {
+        $stream = Stream::fromResourceUri($file['tmp_name']);
+        return new self($stream, $file['size'], $file['error'], $file['name'], $file['type']);
+    }
+
     protected StreamInterface $stream;
     protected bool            $isMoved = false;
 
@@ -53,20 +65,6 @@ class UploadedFile implements UploadedFileInterface
         $this->errorCode       = $error;
         $this->clientFilename  = $clientFilename;
         $this->clientMediaType = $clientMediaType;
-    }
-
-    /**
-     * @param array $file Associative array with keys corresponding to $_FILES[name] array
-     *                    for single uploaded file
-     *
-     * @return UploadedFile
-     *
-     * @see https://www.php.net/manual/en/features.file-upload.post-method.php
-     */
-    public static function fromFileArray(array $file): self
-    {
-        $stream = Stream::fromResourceUri($file['tmp_name']);
-        return new self($stream, $file['size'], $file['error'], $file['name'], $file['type']);
     }
 
     public function getStream(): StreamInterface

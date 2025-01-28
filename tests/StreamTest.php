@@ -37,26 +37,6 @@ class StreamTest extends TestCase
         if (file_exists($this->testFilename)) { unlink($this->testFilename); }
     }
 
-    public static function validModes(): array
-    {
-        return [['w+b'], ['wb+'], ['xt+'], ['r+t'], ['cb+']];
-    }
-
-    public static function metaKeys(): array
-    {
-        return [
-            ['timed_out', 'boolean'],
-            ['blocked', 'boolean'],
-            ['eof', 'boolean'],
-            ['unread_bytes', 'integer'],
-            ['stream_type', 'string'],
-            ['wrapper_type', 'string'],
-            ['mode', 'string'],
-            ['seekable', 'boolean'],
-            ['uri', 'string']
-        ];
-    }
-
     public function test_Instantiation_WithStreamName()
     {
         $this->assertInstanceOf(StreamInterface::class, Stream::fromResourceUri('php://memory', 'a+b'));
@@ -386,6 +366,26 @@ class StreamTest extends TestCase
         $stream = Stream::fromBodyString('Hello World!');
         $this->assertInstanceOf(StreamInterface::class, $stream);
         $this->assertSame('Hello', $stream->read(5));
+    }
+
+    public static function validModes(): iterable
+    {
+        return [['w+b'], ['wb+'], ['xt+'], ['r+t'], ['cb+']];
+    }
+
+    public static function metaKeys(): iterable
+    {
+        return [
+            ['timed_out', 'boolean'],
+            ['blocked', 'boolean'],
+            ['eof', 'boolean'],
+            ['unread_bytes', 'integer'],
+            ['stream_type', 'string'],
+            ['wrapper_type', 'string'],
+            ['mode', 'string'],
+            ['seekable', 'boolean'],
+            ['uri', 'string']
+        ];
     }
 
     private function stream($resource = null, $mode = null): Stream

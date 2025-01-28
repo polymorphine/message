@@ -21,6 +21,16 @@ class Uri implements UriInterface
     public const CHARSET_PATH  = '^a-z0-9A-Z.\-_~&=+;,$!\'()*%:\/@';
     public const CHARSET_QUERY = '^a-z0-9A-Z.\-_~&=+;,$!\'()*%:\/@?';
 
+    public static function fromString(string $uri = ''): self
+    {
+        $segments = parse_url($uri);
+        if ($segments === false) {
+            throw new InvalidArgumentException('Malformed URI string: `$uri`');
+        }
+
+        return new self($segments);
+    }
+
     protected array $supportedSchemes = [
         'http'  => ['port' => 80],
         'https' => ['port' => 443]
@@ -52,16 +62,6 @@ class Uri implements UriInterface
         $this->path     = isset($segments['path']) ? $this->encode($segments['path'], self::CHARSET_PATH) : '';
         $this->query    = isset($segments['query']) ? $this->encode($segments['query'], self::CHARSET_QUERY) : '';
         $this->fragment = isset($segments['fragment']) ? $this->encode($segments['fragment'], self::CHARSET_QUERY) : '';
-    }
-
-    public static function fromString(string $uri = ''): self
-    {
-        $segments = parse_url($uri);
-        if ($segments === false) {
-            throw new InvalidArgumentException('Malformed URI string: `$uri`');
-        }
-
-        return new self($segments);
     }
 
     public function __toString(): string

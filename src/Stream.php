@@ -19,6 +19,33 @@ use RuntimeException;
 
 class Stream implements StreamInterface
 {
+    public static function fromBodyString(string $body): self
+    {
+        $stream = new self(fopen('php://temp', 'w+b'));
+        $stream->write($body);
+        $stream->rewind();
+
+        return $stream;
+    }
+
+    public static function fromResourceUri(string $streamUri, string $mode = 'r'): self
+    {
+        set_error_handler(fn () => self::handleResourceError($mode), E_WARNING);
+        $resource = fopen($streamUri, $mode);
+        restore_error_handler();
+
+        return new self($resource);
+    }
+
+    private static function handleResourceError(string $mode): void
+    {
+        restore_error_handler();
+        if (preg_match('/^[acrwx](?:\+?[tb]?|[tb]?\+?)$/', $mode)) {
+            throw new RuntimeException('Invalid stream reference');
+        }
+        throw new InvalidArgumentException('Invalid stream resource mode');
+    }
+
     private $resource;
 
     private ?array $metaData;
@@ -38,30 +65,6 @@ class Stream implements StreamInterface
         }
 
         $this->resource = $resource;
-    }
-
-    public static function fromResourceUri(string $streamUri, $mode = 'r'): self
-    {
-        set_error_handler(function () use ($mode) {
-            restore_error_handler();
-            if (preg_match('/^[acrwx](?:\+?[tb]?|[tb]?\+?)$/', $mode)) {
-                throw new RuntimeException('Invalid stream reference');
-            }
-            throw new InvalidArgumentException('Invalid stream resource mode');
-        }, E_WARNING);
-        $resource = fopen($streamUri, $mode);
-        restore_error_handler();
-
-        return new self($resource);
-    }
-
-    public static function fromBodyString(string $body): self
-    {
-        $stream = new self(fopen('php://temp', 'w+b'));
-        $stream->write($body);
-        $stream->rewind();
-
-        return $stream;
     }
 
     public function __toString(): string
